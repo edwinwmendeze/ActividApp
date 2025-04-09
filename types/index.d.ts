@@ -1,10 +1,14 @@
-// types/index.d.ts
-// Re-export all types
-export * from './actividad';
-export * from './colaborador';
-export * from './producto';
-export * from './pedido';
-export * from './venta';
-export * from './ui';
-export * from './error';
-export * from './stats';
+  export interface Colaborador {
+    id?: string;
+    actividad_id?: string;
+    nombre: string;
+    telefono: string;
+    rol?: ColaboradorRol; // This can be undefined
+    codigo_acceso: string;
+    codigo_qr: string;
+    codigo_venta: string;
+    codigo_venta_qr: string;
+    activo: boolean;
+    created_at?: string;
+    updated_at?: string;
+  }

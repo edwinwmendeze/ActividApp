@@ -166,7 +166,7 @@
     
     if (tipo === 'acceso') {
       link.download = `acceso-${props.collaborator.codigo_acceso}.png`
-      link.href = props.collaborator.codigo_qr
+      link.href = props.collaborator.codigo_qr || ''
     } else {
       link.download = `ventas-${props.collaborator.codigo_venta}.png`
       link.href = props.collaborator.codigo_venta_qr || ''

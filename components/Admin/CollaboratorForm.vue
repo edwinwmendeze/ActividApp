@@ -126,6 +126,8 @@ interface CollaboratorForm {
   activo: boolean
   codigo_acceso: string
   codigo_venta: string
+  codigo_qr: string
+  codigo_venta_qr: string
 }
 
 const form = ref<CollaboratorForm>({
@@ -134,7 +136,9 @@ const form = ref<CollaboratorForm>({
   rol: '',
   activo: true,
   codigo_acceso: '',
-  codigo_venta: ''
+  codigo_venta: '',
+  codigo_qr: '',
+  codigo_venta_qr: ''
 })
 
 const errors = ref<Record<string, string>>({})
@@ -177,6 +181,8 @@ const regenerateCodes = async () => {
   try {
     form.value.codigo_acceso = await generateUniqueCodeWithCheck('codigo_acceso')
     form.value.codigo_venta = await generateUniqueCodeWithCheck('codigo_venta')
+    form.value.codigo_qr = await generateQR(`${window.location.origin}/colaborador/admin/${form.value.codigo_acceso}`)
+    form.value.codigo_venta_qr = await generateQR(`${window.location.origin}/venta/${form.value.codigo_venta}`)
   } catch (err) {
     globalError.value = 'Error regenerando códigos'
   } finally {
@@ -268,7 +274,9 @@ onMounted(() => {
       rol: props.collaborator.rol || '',
       activo: props.collaborator.activo ?? true,
       codigo_acceso: props.collaborator.codigo_acceso || '',
-      codigo_venta: props.collaborator.codigo_venta || ''
+      codigo_venta: props.collaborator.codigo_venta || '',
+      codigo_qr: props.collaborator.codigo_qr || '',
+      codigo_venta_qr: props.collaborator.codigo_venta_qr || ''
     }
   }
 })

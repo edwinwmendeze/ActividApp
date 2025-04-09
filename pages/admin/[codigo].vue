@@ -84,12 +84,12 @@
             <div class="details-grid">
               <div class="detail-item">
                 <div class="detail-label">Fecha de inicio:</div>
-                <div class="detail-value">{{ formatDate(actividad.fecha_inicio) }}</div>
+                <div class="detail-value">{{ formatDate(actividad.fecha_inicio ?? '') }}</div>
               </div>
               
               <div class="detail-item">
                 <div class="detail-label">Fecha de fin:</div>
-                <div class="detail-value">{{ formatDate(actividad.fecha_fin) }}</div>
+                <div class="detail-value">{{ formatDate(actividad.fecha_fin ?? '') }}</div>
               </div>
               
               <div class="detail-item">
@@ -471,6 +471,14 @@
 </template>
 
 <script setup lang="ts">
+import type {
+  Actividad,
+  Colaborador,
+  Producto,
+  DashboardStats,
+  ProductoTipo
+} from '~/types'
+
 import CollaboratorsList from '~/components/Admin/CollaboratorsList.vue'
 import CollaboratorForm from '~/components/Admin/CollaboratorForm.vue'
 import ShareQR from '~/components/QR/ShareQR.vue'
@@ -480,9 +488,11 @@ const supabase = useSupabaseClient();
 // Estado de la página
 const loading = ref(true);
 const error = ref('');
-const actividad = ref({});
+
+const actividad = ref<Partial<Actividad>>({});
+
 const activeTab = ref('dashboard');
-const estadisticas = ref({
+const estadisticas = ref<DashboardStats>({
   totalProductos: 0,
   totalColaboradores: 0,
   totalPedidos: 0
@@ -534,16 +544,16 @@ onMounted(async () => {
     // Cargar estadísticas básicas
     await cargarEstadisticas(actividadData.id);
     
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Error al cargar la actividad:', err);
-    error.value = err.message || 'Ocurrió un error al cargar la actividad';
+    error.value = (err as Error).message || 'Ocurrió un error al cargar la actividad';
   } finally {
     loading.value = false;
   }
 });
 
 // Cargar estadísticas básicas
-async function cargarEstadisticas(actividadId) {
+async function cargarEstadisticas(actividadId: string) {
   try {
     // Total de productos
     const { count: totalProductos } = await supabase
@@ -564,17 +574,18 @@ async function cargarEstadisticas(actividadId) {
       .eq('actividad_id', actividadId);
     
     estadisticas.value = {
-      totalProductos,
-      totalColaboradores,
-      totalPedidos
+      totalProductos: totalProductos || 0,
+      totalColaboradores: totalColaboradores || 0,
+      totalPedidos: totalPedidos || 0
     };
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Error al cargar estadísticas:', err);
+    error.value = (err as Error).message || 'Ocurrió un error al cargar las estadísticas';
   }
 }
 
 // Formatear fecha
-function formatDate(dateString) {
+function formatDate(dateString: string) {
   if (!dateString) return 'No especificada';
   
   const date = new Date(dateString);
@@ -600,13 +611,13 @@ function downloadQR() {
 }
 
 // Variables para gestión de productos
-const productos = ref([]);
-const productosFiltrados = ref([]);
+const productos = ref<Producto[]>([]);
+const productosFiltrados = ref<Producto[]>([]);
 const loadingProductos = ref(true);
 const mostrarModal = ref(false);
 const modoEdicion = ref(false);
-const productoAEditar = ref(null);
-const productoAEliminar = ref(null);
+const productoAEditar = ref<Producto | null>(null);
+const productoAEliminar = ref<Producto | null>(null);
 const mostrarConfirmacion = ref(false);
 const guardandoProducto = ref(false);
 const eliminandoProducto = ref(false);
@@ -619,17 +630,30 @@ const filtros = ref({
   disponibilidad: ''
 });
 
+// Definir tipo para errores
+interface FormErrors {
+  nombre?: string;
+  tipo?: string;
+  precio?: string;
+}
+
 // Errores del formulario
-const erroresForm = ref({});
+const erroresForm = ref<FormErrors>({});
 
 // Formulario de producto
-const productoForm = ref({
+const productoForm = ref<{
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  tipo: ProductoTipo;
+  disponible: boolean;
+  imagen_url?: string;
+}>({
   nombre: '',
   descripcion: '',
   precio: 0,
-  tipo: '',
-  disponible: true,
-  imagen_url: ''
+  tipo: 'plato', // Valor por defecto
+  disponible: true
 });
 
 // Notificación
@@ -663,7 +687,7 @@ async function cargarProductos() {
     
     productos.value = data || [];
     productosFiltrados.value = [...productos.value];
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Error al cargar productos:', err);
     mostrarNotificacion('Error al cargar los productos', 'error');
   } finally {
@@ -673,7 +697,7 @@ async function cargarProductos() {
 
 // Filtrar productos
 function filtrarProductos() {
-  productosFiltrados.value = productos.value.filter(producto => {
+  productosFiltrados.value = productos.value.filter((producto: Producto) => {
     // Filtro por búsqueda
     const matchBusqueda = !filtros.value.busqueda || 
       producto.nombre.toLowerCase().includes(filtros.value.busqueda.toLowerCase()) ||
@@ -705,7 +729,7 @@ function limpiarFiltros() {
 }
 
 // Formatear tipo de producto
-function formatearTipo(tipo) {
+function formatearTipo(tipo: ProductoTipo) {
   const tipos = {
     plato: 'Plato',
     bebida: 'Bebida',
@@ -717,7 +741,7 @@ function formatearTipo(tipo) {
 }
 
 // Obtener emoji para placeholder
-function obtenerEmoji(tipo) {
+function obtenerEmoji(tipo: ProductoTipo) {
   const emojis = {
     plato: '🍽️',
     bebida: '🥤',
@@ -729,7 +753,7 @@ function obtenerEmoji(tipo) {
 }
 
 // Mostrar formulario de producto (nuevo o edición)
-function mostrarFormularioProducto(producto = null) {
+function mostrarFormularioProducto(producto: Producto | null = null) {
   // Resetear formulario
   erroresForm.value = {};
   errorFormulario.value = '';
@@ -754,7 +778,7 @@ function mostrarFormularioProducto(producto = null) {
       nombre: '',
       descripcion: '',
       precio: 0,
-      tipo: '',
+      tipo: 'plato',
       disponible: true,
       imagen_url: ''
     };
@@ -771,7 +795,7 @@ function cerrarModal() {
 
 // Validar formulario
 function validarFormulario() {
-  const errores = {};
+  const errores: FormErrors = {};
   
   // Validar nombre
   if (!productoForm.value.nombre.trim()) {
@@ -803,50 +827,40 @@ async function guardarProducto() {
   
   try {
     // Datos del producto (sin imagen)
-    const productoData = {
-      actividad_id: actividad.value.id,
+      const productoData = {
+      actividad_id: actividad.value.id!,
       nombre: productoForm.value.nombre,
       descripcion: productoForm.value.descripcion,
       precio: productoForm.value.precio,
       tipo: productoForm.value.tipo,
       disponible: productoForm.value.disponible
-    };
-    
+    } satisfies Partial<Producto>;
+
     if (modoEdicion.value) {
-      // Actualizar producto existente
-      const { error } = await supabase
+      await supabase
         .from('productos')
         .update(productoData)
-        .eq('id', productoAEditar.value.id);
-      
-      if (error) throw new Error('Error al actualizar el producto');
-      
-      mostrarNotificacion('Producto actualizado correctamente');
+        .eq('id', productoAEditar.value!.id);
     } else {
-      // Crear nuevo producto
-      const { error } = await supabase
+      await supabase
         .from('productos')
         .insert(productoData);
-      
-      if (error) throw new Error('Error al crear el producto');
-      
-      mostrarNotificacion('Producto creado correctamente');
     }
     
     // Recargar productos y cerrar modal
     await cargarProductos();
     cerrarModal();
     
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Error al guardar producto:', err);
-    errorFormulario.value = err.message || 'Error al guardar el producto';
+    errorFormulario.value = (err as Error).message || 'Error al guardar el producto';
   } finally {
     guardandoProducto.value = false;
   }
 }
 
 // Confirmar eliminación de producto
-function confirmarEliminarProducto(producto) {
+function confirmarEliminarProducto(producto: Producto | null) {
   productoAEliminar.value = producto;
   mostrarConfirmacion.value = true;
 }
@@ -869,7 +883,7 @@ async function eliminarProducto() {
     await cargarProductos();
     mostrarConfirmacion.value = false;
     
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Error al eliminar producto:', err);
     mostrarNotificacion('Error al eliminar el producto', 'error');
   } finally {
@@ -878,7 +892,7 @@ async function eliminarProducto() {
 }
 
 // Mostrar notificación
-function mostrarNotificacion(mensaje, tipo = 'exito') {
+function mostrarNotificacion(mensaje: string, tipo: 'exito' | 'error' = 'exito') {
   notificacion.value = {
     mostrar: true,
     mensaje,
@@ -892,17 +906,29 @@ function mostrarNotificacion(mensaje, tipo = 'exito') {
 }
 
 // Variables para gestión de colaboradores
-const collaboratorsListRef = ref(null)
+const collaboratorsListRef = ref<{
+  loadCollaborators: () => Promise<void>;
+  showNotification: (message: string, type?: 'exito' | 'error') => void;
+}>();
 const mostrarModalColaborador = ref(false)
 const mostrarModalQR = ref(false)
 const mostrarConfirmacionColaborador = ref(false)
-const colaboradorEnEdicion = ref(null)
-const colaboradorSeleccionado = ref(null)
-const colaboradorAEliminar = ref(null)
+const colaboradorEnEdicion = ref<Colaborador | null>(null)
+const colaboradorSeleccionado = ref<Colaborador>({
+  nombre: '',
+  telefono: '',
+  rol: 'vendedor',
+  activo: true,
+  codigo_acceso: '',
+  codigo_venta: '',
+  codigo_qr: '',
+  codigo_venta_qr: ''
+})
+const colaboradorAEliminar = ref<Colaborador | null>(null)
 const eliminandoColaborador = ref(false)
 
 // Funciones para gestión de colaboradores
-const mostrarFormularioColaborador = (colaborador = null) => {
+const mostrarFormularioColaborador = (colaborador: Colaborador | null = null) => {
   colaboradorEnEdicion.value = colaborador
   mostrarModalColaborador.value = true
 }
@@ -911,7 +937,7 @@ const cerrarModalColaborador = () => {
   mostrarModalColaborador.value = false
 }
 
-const colaboradorGuardado = (data) => {
+const colaboradorGuardado = (data: Colaborador) => {
   if (collaboratorsListRef.value) {
     collaboratorsListRef.value.loadCollaborators()
     collaboratorsListRef.value.showNotification(
@@ -923,16 +949,16 @@ const colaboradorGuardado = (data) => {
   cerrarModalColaborador()
 }
 
-const editarColaborador = (colaborador) => {
+const editarColaborador = (colaborador: Colaborador) => {
   mostrarFormularioColaborador(colaborador)
 }
 
-const verQRColaborador = (colaborador) => {
+const verQRColaborador = (colaborador: Colaborador) => {
   colaboradorSeleccionado.value = colaborador
   mostrarModalQR.value = true
 }
 
-const confirmarEliminarColaborador = (colaborador) => {
+const confirmarEliminarColaborador = (colaborador: Colaborador) => {
   colaboradorAEliminar.value = colaborador
   mostrarConfirmacionColaborador.value = true
 }
@@ -956,7 +982,7 @@ const eliminarColaborador = async () => {
     }
     
     mostrarConfirmacionColaborador.value = false
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Error al eliminar colaborador:', err)
     if (collaboratorsListRef.value) {
       collaboratorsListRef.value.showNotification('Error al eliminar el colaborador', 'error')

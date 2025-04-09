@@ -2,17 +2,17 @@
 export type ColaboradorRol = 'vendedor' | 'gestor_entregas' | 'gestor_cobros' | 'admin';
 
 export interface Colaborador {
-  id: string;
-  actividad_id: string;
+  id?: string;
+  actividad_id?: string;
   nombre: string;
-  telefono?: string;
-  rol: ColaboradorRol;
+  telefono: string;
+  rol?: ColaboradorRol;
   codigo_acceso: string;
   codigo_qr: string;
-  codigo_venta?: string;
-  codigo_venta_qr?: string;
+  codigo_venta: string;
+  codigo_venta_qr: string;
   activo: boolean;
-  created_at: string;
+  created_at?: string;
   updated_at?: string;
 }
 

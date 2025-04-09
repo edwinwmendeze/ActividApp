@@ -7,3 +7,8 @@ export interface ErrorResponse {
     stack?: string;
     details?: Record<string, any>;
 }
+interface FormErrors {
+    nombre?: string;
+    tipo?: string;
+    precio?: string;
+  }
