@@ -19,7 +19,7 @@ export default defineNuxtConfig({
   ],
   supabase: {
     // Desactivar completamente el redireccionamiento
-    redirect: false,
+    redirect: true,
     // Agregar explícitamente las credenciales
     url: process.env.NUXT_SUPABASE_URL,
     key: process.env.NUXT_SUPABASE_KEY

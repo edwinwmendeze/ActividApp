@@ -126,285 +126,251 @@
           </div>
           
           <!-- Tab: Productos -->
-            <div v-else-if="activeTab === 'productos'" class="tab-content">
+          <div v-else-if="activeTab === 'productos'" class="tab-content">
             <div class="tab-header">
-                <h2>Gestión de Productos</h2>
-                <button @click="mostrarFormularioProducto()" class="action-button">
+              <h2>Gestión de Productos</h2>
+              <button @click="mostrarFormularioProducto()" class="action-button">
                 <span class="button-icon">+</span> Añadir Producto
-                </button>
+              </button>
             </div>
             
             <!-- Filtros y búsqueda -->
             <div class="filters-bar">
-                <div class="search-box">
+              <div class="search-box">
                 <input 
-                    type="text" 
-                    v-model="filtros.busqueda" 
-                    placeholder="Buscar productos..." 
-                    @input="filtrarProductos"
+                  type="text" 
+                  v-model="filtros.busqueda" 
+                  placeholder="Buscar productos..." 
+                  @input="filtrarProductos"
                 />
-                </div>
-                <div class="filter-options">
+              </div>
+              <div class="filter-options">
                 <select v-model="filtros.tipo" @change="filtrarProductos">
-                    <option value="">Todos los tipos</option>
-                    <option value="plato">Platos</option>
-                    <option value="bebida">Bebidas</option>
-                    <option value="postre">Postres</option>
-                    <option value="otro">Otros</option>
+                  <option value="">Todos los tipos</option>
+                  <option value="plato">Platos</option>
+                  <option value="bebida">Bebidas</option>
+                  <option value="postre">Postres</option>
+                  <option value="otro">Otros</option>
                 </select>
                 <select v-model="filtros.disponibilidad" @change="filtrarProductos">
-                    <option value="">Todos</option>
-                    <option value="disponible">Disponibles</option>
-                    <option value="no-disponible">No disponibles</option>
+                  <option value="">Todos</option>
+                  <option value="disponible">Disponibles</option>
+                  <option value="no-disponible">No disponibles</option>
                 </select>
-                </div>
+              </div>
             </div>
-
+  
             <!-- Loader mientras se cargan los productos -->
             <div v-if="loadingProductos" class="centered-loader">
-                <div class="loader"></div>
-                <p>Cargando productos...</p>
+              <div class="loader"></div>
+              <p>Cargando productos...</p>
             </div>
             
             <!-- Mensaje cuando no hay productos -->
             <div v-else-if="productosFiltrados.length === 0" class="empty-state">
-                <div class="empty-icon">🍽️</div>
-                <h3>No hay productos</h3>
-                <p v-if="filtros.busqueda || filtros.tipo || filtros.disponibilidad !== ''">
+              <div class="empty-icon">🍽️</div>
+              <h3>No hay productos</h3>
+              <p v-if="filtros.busqueda || filtros.tipo || filtros.disponibilidad !== ''">
                 No se encontraron productos con los filtros seleccionados.
                 <button @click="limpiarFiltros" class="text-button">Limpiar filtros</button>
-                </p>
-                <p v-else>
+              </p>
+              <p v-else>
                 ¡Comienza añadiendo tu primer producto para tu actividad!
-                </p>
-                <button @click="mostrarFormularioProducto()" class="action-button">
+              </p>
+              <button @click="mostrarFormularioProducto()" class="action-button">
                 Añadir Primer Producto
-                </button>
+              </button>
             </div>
             
             <!-- Lista de productos -->
             <div v-else class="productos-grid">
-                <div 
+              <div 
                 v-for="producto in productosFiltrados" 
                 :key="producto.id"
                 class="producto-card"
-                >
+              >
                 <div class="producto-disponibilidad" :class="{ 'no-disponible': !producto.disponible }">
-                    {{ producto.disponible ? 'Disponible' : 'No disponible' }}
+                  {{ producto.disponible ? 'Disponible' : 'No disponible' }}
                 </div>
                 
                 <div class="producto-imagen-container">
-                    <img 
+                  <img 
                     v-if="producto.imagen_url" 
                     :src="producto.imagen_url" 
                     :alt="producto.nombre" 
                     class="producto-imagen"
-                    />
-                    <div v-else class="producto-imagen-placeholder">
+                  />
+                  <div v-else class="producto-imagen-placeholder">
                     {{ obtenerEmoji(producto.tipo) }}
-                    </div>
+                  </div>
                 </div>
                 
                 <div class="producto-info">
-                    <h3 class="producto-nombre">{{ producto.nombre }}</h3>
-                    <div class="producto-tipo">{{ formatearTipo(producto.tipo) }}</div>
-                    <div class="producto-descripcion">{{ producto.descripcion || 'Sin descripción' }}</div>
-                    <div class="producto-precio">${{ producto.precio.toFixed(2) }}</div>
+                  <h3 class="producto-nombre">{{ producto.nombre }}</h3>
+                  <div class="producto-tipo">{{ formatearTipo(producto.tipo) }}</div>
+                  <div class="producto-descripcion">{{ producto.descripcion || 'Sin descripción' }}</div>
+                  <div class="producto-precio">S/ {{ producto.precio.toFixed(2) }}</div>
                 </div>
                 
                 <div class="producto-acciones">
-                    <button @click="mostrarFormularioProducto(producto)" class="icon-button edit">
+                  <button @click="mostrarFormularioProducto(producto)" class="icon-button edit">
                     ✏️
-                    </button>
-                    <button @click="confirmarEliminarProducto(producto)" class="icon-button delete">
+                  </button>
+                  <button @click="confirmarEliminarProducto(producto)" class="icon-button delete">
                     🗑️
-                    </button>
+                  </button>
                 </div>
-                </div>
+              </div>
             </div>
             
             <!-- Modal formulario para crear/editar producto -->
             <div v-if="mostrarModal" class="modal-overlay" @click="cerrarModal">
-                <div class="modal-container" @click.stop>
+              <div class="modal-container" @click.stop>
                 <div class="modal-header">
-                    <h3>{{ modoEdicion ? 'Editar Producto' : 'Añadir Nuevo Producto' }}</h3>
-                    <button @click="cerrarModal" class="close-button">&times;</button>
+                  <h3>{{ modoEdicion ? 'Editar Producto' : 'Añadir Nuevo Producto' }}</h3>
+                  <button @click="cerrarModal" class="close-button" aria-label="Cerrar">&times;</button>
                 </div>
                 
                 <form @submit.prevent="guardarProducto" class="producto-form">
-                    <div class="form-row">
+                  <div class="form-row">
                     <div class="form-group">
-                        <label for="nombre">Nombre *</label>
-                        <input 
+                      <label for="nombre">Nombre *</label>
+                      <input 
                         id="nombre"
                         v-model.trim="productoForm.nombre"
                         type="text"
                         required
                         placeholder="Ej: Hamburguesa vegetariana"
                         :class="{ 'has-error': erroresForm.nombre }"
-                        />
-                        <p v-if="erroresForm.nombre" class="error-message">{{ erroresForm.nombre }}</p>
+                      />
+                      <p v-if="erroresForm.nombre" class="error-message">{{ erroresForm.nombre }}</p>
                     </div>
                     
                     <div class="form-group">
-                        <label for="tipo">Tipo *</label>
-                        <select 
+                      <label for="tipo">Tipo *</label>
+                      <select 
                         id="tipo"
                         v-model="productoForm.tipo"
                         required
                         :class="{ 'has-error': erroresForm.tipo }"
-                        >
+                      >
                         <option value="" disabled>Selecciona un tipo</option>
                         <option value="plato">Plato</option>
                         <option value="bebida">Bebida</option>
                         <option value="postre">Postre</option>
                         <option value="otro">Otro</option>
-                        </select>
-                        <p v-if="erroresForm.tipo" class="error-message">{{ erroresForm.tipo }}</p>
+                      </select>
+                      <p v-if="erroresForm.tipo" class="error-message">{{ erroresForm.tipo }}</p>
                     </div>
-                    </div>
-                    
-                    <div class="form-group">
+                  </div>
+                  
+                  <div class="form-group">
                     <label for="descripcion">Descripción</label>
                     <textarea
-                        id="descripcion"
-                        v-model.trim="productoForm.descripcion"
-                        rows="2"
-                        placeholder="Describe los ingredientes o detalles del producto..."
+                      id="descripcion"
+                      v-model.trim="productoForm.descripcion"
+                      rows="2"
+                      placeholder="Describe los ingredientes o detalles del producto..."
                     ></textarea>
-                    </div>
-                    
-                    <div class="form-row">
+                  </div>
+                  
+                  <div class="form-row">
                     <div class="form-group">
-                        <label for="precio">Precio *</label>
-                        <div class="input-prefix">
-                        <span class="prefix">$</span>
+                      <label for="precio">Precio (USD) *</label>
+                      <div class="input-prefix">
+                        <span class="prefix">S/ </span>
                         <input 
-                            id="precio"
-                            v-model.number="productoForm.precio"
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            required
-                            placeholder="0.00"
-                            :class="{ 'has-error': erroresForm.precio }"
+                          id="precio"
+                          v-model.number="productoForm.precio"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          required
+                          placeholder="0.00"
+                          :class="{ 'has-error': erroresForm.precio }"
                         />
-                        </div>
-                        <p v-if="erroresForm.precio" class="error-message">{{ erroresForm.precio }}</p>
+                      </div>
+                      <p v-if="erroresForm.precio" class="error-message">{{ erroresForm.precio }}</p>
                     </div>
                     
                     <div class="form-group">
-                        <label>Disponibilidad</label>
-                        <label class="checkbox-container">
+                      <label>Disponibilidad</label>
+                      <label class="checkbox-container">
                         <input type="checkbox" v-model="productoForm.disponible" />
                         <span class="checkmark"></span>
                         Producto disponible para venta
-                        </label>
+                      </label>
                     </div>
-                    </div>
-                    <!-- Reemplaza la sección de imagen por esto: -->
-                    <!-- 
-                    <div class="form-group">
-                    <label>Imagen del producto</label>
-                    <div class="imagen-upload-container">
-                        <div 
-                        v-if="imagenPreview || productoForm.imagen_url" 
-                        class="imagen-preview"
-                        >
-                        <img 
-                            :src="imagenPreview || productoForm.imagen_url" 
-                            alt="Vista previa" 
-                        />
-                        <button 
-                            type="button" 
-                            @click="eliminarImagen" 
-                            class="remove-image-button"
-                        >
-                            &times;
-                        </button>
-                        </div>
-                        <div v-else class="upload-placeholder" @click="activarInputImagen">
-                        <div class="upload-icon">📷</div>
-                        <p>Haz clic para subir una imagen</p>
-                        </div>
-                        <input 
-                        type="file"
-                        ref="imagenInput"
-                        @change="seleccionarImagen"
-                        accept="image/*"
-                        style="display: none"
-                        />
-                    </div>
-                    </div>
-                -->
-                    <div v-if="errorFormulario" class="error-global">
+                  </div>
+                  
+                  <div v-if="errorFormulario" class="error-global">
                     {{ errorFormulario }}
-                    </div>
-                    
-                    <div class="form-actions">
+                  </div>
+                  
+                  <div class="form-actions">
                     <button 
-                        type="submit" 
-                        class="action-button primary"
-                        :disabled="guardandoProducto"
+                      type="submit" 
+                      class="action-button primary"
+                      :disabled="guardandoProducto"
                     >
-                        <div v-if="guardandoProducto" class="button-loader"></div>
-                        <span v-else>{{ modoEdicion ? 'Guardar Cambios' : 'Crear Producto' }}</span>
+                      <div v-if="guardandoProducto" class="button-loader"></div>
+                      <span v-else>{{ modoEdicion ? 'Guardar Cambios' : 'Crear Producto' }}</span>
                     </button>
                     <button 
-                        type="button" 
-                        @click="cerrarModal" 
-                        class="action-button secondary"
-                        :disabled="guardandoProducto"
+                      type="button" 
+                      @click="cerrarModal" 
+                      class="action-button secondary"
+                      :disabled="guardandoProducto"
                     >
-                        Cancelar
+                      Cancelar
                     </button>
-                    </div>
+                  </div>
                 </form>
-                </div>
+              </div>
             </div>
             
             <!-- Modal de confirmación para eliminar -->
             <div v-if="mostrarConfirmacion" class="modal-overlay" @click="mostrarConfirmacion = false">
-                <div class="modal-container confirmation-modal" @click.stop>
+              <div class="modal-container confirmation-modal" @click.stop>
                 <div class="modal-header">
-                    <h3>Confirmar eliminación</h3>
-                    <button @click="mostrarConfirmacion = false" class="close-button">&times;</button>
+                  <h3>Confirmar eliminación</h3>
+                  <button @click="mostrarConfirmacion = false" class="close-button">&times;</button>
                 </div>
                 
                 <div class="confirmation-content">
-                    <div class="warning-icon">⚠️</div>
-                    <p>¿Estás seguro de que deseas eliminar el producto <strong>{{ productoAEliminar?.nombre }}</strong>?</p>
-                    <p>Esta acción no se puede deshacer.</p>
+                  <div class="warning-icon">⚠️</div>
+                  <p>¿Estás seguro de que deseas eliminar el producto <strong>{{ productoAEliminar?.nombre }}</strong>?</p>
+                  <p>Esta acción no se puede deshacer.</p>
                 </div>
                 
                 <div class="confirmation-actions">
-                    <button 
+                  <button 
                     @click="eliminarProducto" 
                     class="action-button danger"
                     :disabled="eliminandoProducto"
-                    >
+                  >
                     <div v-if="eliminandoProducto" class="button-loader"></div>
                     <span v-else>Eliminar</span>
-                    </button>
-                    <button 
+                  </button>
+                  <button 
                     @click="mostrarConfirmacion = false" 
                     class="action-button secondary"
                     :disabled="eliminandoProducto"
-                    >
+                  >
                     Cancelar
-                    </button>
+                  </button>
                 </div>
-                </div>
+              </div>
             </div>
             
             <!-- Notificación de éxito -->
             <div v-if="notificacion.mostrar" class="notificacion" :class="notificacion.tipo">
-                <div class="notificacion-contenido">
+              <div class="notificacion-contenido">
                 <span class="notificacion-icono">{{ notificacion.tipo === 'exito' ? '✅' : '❌' }}</span>
                 <span class="notificacion-mensaje">{{ notificacion.mensaje }}</span>
-                </div>
+              </div>
             </div>
-            </div>
+          </div>
           
           <!-- Tab: Colaboradores -->
           <div v-else-if="activeTab === 'colaboradores'" class="tab-content">
@@ -457,392 +423,6 @@
     totalColaboradores: 0,
     totalPedidos: 0
   });
-
-
-  // Variables para gestión de productos
-const productos = ref([]);
-const productosFiltrados = ref([]);
-const loadingProductos = ref(true);
-const mostrarModal = ref(false);
-const modoEdicion = ref(false);
-const productoAEditar = ref(null);
-const productoAEliminar = ref(null);
-const mostrarConfirmacion = ref(false);
-const guardandoProducto = ref(false);
-const eliminandoProducto = ref(false);
-const imagenPreview = ref('');
-const imagenFile = ref(null);
-const imagenInput = ref(null);
-const errorFormulario = ref('');
-
-// Filtros
-const filtros = ref({
-  busqueda: '',
-  tipo: '',
-  disponibilidad: ''
-});
-
-// Errores del formulario
-const erroresForm = ref({});
-
-// Formulario de producto
-const productoForm = ref({
-  nombre: '',
-  descripcion: '',
-  precio: 0,
-  tipo: '',
-  disponible: true,
-  imagen_url: ''
-});
-
-// Notificación
-const notificacion = ref({
-  mostrar: false,
-  mensaje: '',
-  tipo: 'exito'
-});
-
-// Cargar productos cuando se active el tab de productos
-watch(activeTab, async (newTab) => {
-  if (newTab === 'productos' && actividad.value.id) {
-    await cargarProductos();
-  }
-});
-
-// Función para cargar productos
-async function cargarProductos() {
-  loadingProductos.value = true;
-  
-  try {
-    const { data, error } = await supabase
-      .from('productos')
-      .select('*')
-      .eq('actividad_id', actividad.value.id)
-      .order('nombre');
-    
-    if (error) {
-      throw new Error('Error al cargar los productos');
-    }
-    
-    productos.value = data || [];
-    productosFiltrados.value = [...productos.value];
-  } catch (err) {
-    console.error('Error al cargar productos:', err);
-    mostrarNotificacion('Error al cargar los productos', 'error');
-  } finally {
-    loadingProductos.value = false;
-  }
-}
-
-// Filtrar productos
-function filtrarProductos() {
-  productosFiltrados.value = productos.value.filter(producto => {
-    // Filtro por búsqueda
-    const matchBusqueda = !filtros.value.busqueda || 
-      producto.nombre.toLowerCase().includes(filtros.value.busqueda.toLowerCase()) ||
-      (producto.descripcion && producto.descripcion.toLowerCase().includes(filtros.value.busqueda.toLowerCase()));
-    
-    // Filtro por tipo
-    const matchTipo = !filtros.value.tipo || producto.tipo === filtros.value.tipo;
-    
-    // Filtro por disponibilidad
-    let matchDisponibilidad = true;
-    if (filtros.value.disponibilidad === 'disponible') {
-      matchDisponibilidad = producto.disponible;
-    } else if (filtros.value.disponibilidad === 'no-disponible') {
-      matchDisponibilidad = !producto.disponible;
-    }
-    
-    return matchBusqueda && matchTipo && matchDisponibilidad;
-  });
-}
-
-// Limpiar filtros
-function limpiarFiltros() {
-  filtros.value = {
-    busqueda: '',
-    tipo: '',
-    disponibilidad: ''
-  };
-  productosFiltrados.value = [...productos.value];
-}
-
-// Formatear tipo de producto
-function formatearTipo(tipo) {
-  const tipos = {
-    plato: 'Plato',
-    bebida: 'Bebida',
-    postre: 'Postre',
-    otro: 'Otro'
-  };
-  
-  return tipos[tipo] || tipo;
-}
-
-// Obtener emoji para placeholder
-function obtenerEmoji(tipo) {
-  const emojis = {
-    plato: '🍽️',
-    bebida: '🥤',
-    postre: '🍰',
-    otro: '📦'
-  };
-  
-  return emojis[tipo] || '📦';
-}
-
-// Mostrar formulario de producto (nuevo o edición)
-function mostrarFormularioProducto(producto = null) {
-  // Resetear formulario
-  erroresForm.value = {};
-  errorFormulario.value = '';
-  imagenPreview.value = '';
-  imagenFile.value = null;
-  
-  if (producto) {
-    // Modo edición
-    modoEdicion.value = true;
-    productoAEditar.value = producto;
-    productoForm.value = {
-      nombre: producto.nombre,
-      descripcion: producto.descripcion || '',
-      precio: producto.precio,
-      tipo: producto.tipo,
-      disponible: producto.disponible,
-      imagen_url: producto.imagen_url || ''
-    };
-  } else {
-    // Modo creación
-    modoEdicion.value = false;
-    productoAEditar.value = null;
-    productoForm.value = {
-      nombre: '',
-      descripcion: '',
-      precio: 0,
-      tipo: '',
-      disponible: true,
-      imagen_url: ''
-    };
-  }
-  
-  mostrarModal.value = true;
-}
-
-// Cerrar modal
-function cerrarModal() {
-  if (guardandoProducto.value) return;
-  mostrarModal.value = false;
-}
-
-// Seleccionar imagen
-function seleccionarImagen(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  // Verificar tipo de archivo
-  if (!file.type.match('image.*')) {
-    errorFormulario.value = 'Por favor selecciona una imagen válida';
-    return;
-  }
-  
-  // Verificar tamaño (max 2MB)
-  if (file.size > 2 * 1024 * 1024) {
-    errorFormulario.value = 'La imagen no debe superar los 2MB';
-    return;
-  }
-  
-  imagenFile.value = file;
-  
-  // Crear preview
-  const reader = new FileReader();
-  reader.onload = e => {
-    imagenPreview.value = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-// Activar input de imagen
-function activarInputImagen() {
-  imagenInput.value.click();
-}
-
-// Eliminar imagen
-function eliminarImagen() {
-  imagenPreview.value = '';
-  imagenFile.value = null;
-  productoForm.value.imagen_url = '';
-  if (imagenInput.value) {
-    imagenInput.value.value = '';
-  }
-}
-
-// Validar formulario
-function validarFormulario() {
-  const errores = {};
-  
-  // Validar nombre
-  if (!productoForm.value.nombre.trim()) {
-    errores.nombre = 'El nombre es obligatorio';
-  }
-  
-  // Validar tipo
-  if (!productoForm.value.tipo) {
-    errores.tipo = 'Debes seleccionar un tipo de producto';
-  }
-  
-  // Validar precio
-  if (productoForm.value.precio === null || productoForm.value.precio === undefined) {
-    errores.precio = 'El precio es obligatorio';
-  } else if (productoForm.value.precio < 0) {
-    errores.precio = 'El precio no puede ser negativo';
-  }
-  
-  erroresForm.value = errores;
-  return Object.keys(errores).length === 0;
-}
-
-// Subir imagen a Supabase Storage
-async function subirImagen() {
-  if (!imagenFile.value) return productoForm.value.imagen_url;
-  
-  const fileExt = imagenFile.value.name.split('.').pop();
-  const fileName = `${Date.now()}.${fileExt}`;
-  const filePath = `${actividad.value.id}/${fileName}`;
-  
-  const { data, error } = await supabase.storage
-    .from('productos-imagenes')
-    .upload(filePath, imagenFile.value);
-  
-  if (error) {
-    throw new Error('Error al subir la imagen');
-  }
-  
-  // Obtener URL pública
-  const { data: publicUrl } = supabase.storage
-    .from('productos-imagenes')
-    .getPublicUrl(filePath);
-  
-  return publicUrl.publicUrl;
-}
-
-// Guardar producto (crear o editar)
-async function guardarProducto() {
-  if (!validarFormulario()) return;
-  
-  guardandoProducto.value = true;
-  errorFormulario.value = '';
-  
-  try {
-    // Subir imagen si hay una nueva
-    let imagenUrl = productoForm.value.imagen_url;
-    if (imagenFile.value) {
-      imagenUrl = await subirImagen();
-    }
-    
-    // Datos del producto
-    const productoData = {
-      actividad_id: actividad.value.id,
-      nombre: productoForm.value.nombre,
-      descripcion: productoForm.value.descripcion,
-      precio: productoForm.value.precio,
-      tipo: productoForm.value.tipo,
-      disponible: productoForm.value.disponible,
-      imagen_url: imagenUrl
-    };
-    
-    if (modoEdicion.value) {
-      // Actualizar producto existente
-      const { error } = await supabase
-        .from('productos')
-        .update(productoData)
-        .eq('id', productoAEditar.value.id);
-      
-      if (error) throw new Error('Error al actualizar el producto');
-      
-      mostrarNotificacion('Producto actualizado correctamente');
-    } else {
-      // Crear nuevo producto
-      const { error } = await supabase
-        .from('productos')
-        .insert(productoData);
-      
-      if (error) throw new Error('Error al crear el producto');
-      
-      mostrarNotificacion('Producto creado correctamente');
-    }
-    
-    // Recargar productos y cerrar modal
-    await cargarProductos();
-    cerrarModal();
-    
-  } catch (err) {
-    console.error('Error al guardar producto:', err);
-    errorFormulario.value = err.message || 'Error al guardar el producto';
-  } finally {
-    guardandoProducto.value = false;
-  }
-}
-
-// Confirmar eliminación de producto
-function confirmarEliminarProducto(producto) {
-  productoAEliminar.value = producto;
-  mostrarConfirmacion.value = true;
-}
-
-// Eliminar producto
-async function eliminarProducto() {
-  if (!productoAEliminar.value) return;
-  
-  eliminandoProducto.value = true;
-  
-  try {
-    const { error } = await supabase
-      .from('productos')
-      .delete()
-      .eq('id', productoAEliminar.value.id);
-    
-    if (error) throw new Error('Error al eliminar el producto');
-    
-    // Si tiene imagen, eliminarla del storage
-    if (productoAEliminar.value.imagen_url) {
-      // Extraer el path de la URL
-      const urlParts = productoAEliminar.value.imagen_url.split('/');
-      const filePath = urlParts.slice(-2).join('/');
-      
-      // No esperamos la respuesta, lo hacemos en segundo plano
-      supabase.storage
-        .from('productos-imagenes')
-        .remove([filePath])
-        .then(({ error }) => {
-          if (error) console.error('Error al eliminar imagen:', error);
-        });
-    }
-    
-    mostrarNotificacion('Producto eliminado correctamente');
-    await cargarProductos();
-    mostrarConfirmacion.value = false;
-    
-  } catch (err) {
-    console.error('Error al eliminar producto:', err);
-    mostrarNotificacion('Error al eliminar el producto', 'error');
-  } finally {
-    eliminandoProducto.value = false;
-  }
-}
-
-// Mostrar notificación
-function mostrarNotificacion(mensaje, tipo = 'exito') {
-  notificacion.value = {
-    mostrar: true,
-    mensaje,
-    tipo
-  };
-  
-  // Ocultar después de 3 segundos
-  setTimeout(() => {
-    notificacion.value.mostrar = false;
-  }, 3000);
-}
   
   // Definición de los tabs
   const tabs = [
@@ -953,6 +533,298 @@ function mostrarNotificacion(mensaje, tipo = 'exito') {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  }
+  
+  // Variables para gestión de productos
+  const productos = ref([]);
+  const productosFiltrados = ref([]);
+  const loadingProductos = ref(true);
+  const mostrarModal = ref(false);
+  const modoEdicion = ref(false);
+  const productoAEditar = ref(null);
+  const productoAEliminar = ref(null);
+  const mostrarConfirmacion = ref(false);
+  const guardandoProducto = ref(false);
+  const eliminandoProducto = ref(false);
+  const errorFormulario = ref('');
+  
+  // Filtros
+  const filtros = ref({
+    busqueda: '',
+    tipo: '',
+    disponibilidad: ''
+  });
+  
+  // Errores del formulario
+  const erroresForm = ref({});
+  
+  // Formulario de producto
+  const productoForm = ref({
+    nombre: '',
+    descripcion: '',
+    precio: 0,
+    tipo: '',
+    disponible: true,
+    imagen_url: ''
+  });
+  
+  // Notificación
+  const notificacion = ref({
+    mostrar: false,
+    mensaje: '',
+    tipo: 'exito'
+  });
+  
+  // Cargar productos cuando se active el tab de productos
+  watch(activeTab, async (newTab) => {
+    if (newTab === 'productos' && actividad.value.id) {
+      await cargarProductos();
+    }
+  });
+  
+  // Función para cargar productos
+  async function cargarProductos() {
+    loadingProductos.value = true;
+    
+    try {
+      const { data, error } = await supabase
+        .from('productos')
+        .select('*')
+        .eq('actividad_id', actividad.value.id)
+        .order('nombre');
+      
+      if (error) {
+        throw new Error('Error al cargar los productos');
+      }
+      
+      productos.value = data || [];
+      productosFiltrados.value = [...productos.value];
+    } catch (err) {
+      console.error('Error al cargar productos:', err);
+      mostrarNotificacion('Error al cargar los productos', 'error');
+    } finally {
+      loadingProductos.value = false;
+    }
+  }
+  
+  // Filtrar productos
+  function filtrarProductos() {
+    productosFiltrados.value = productos.value.filter(producto => {
+      // Filtro por búsqueda
+      const matchBusqueda = !filtros.value.busqueda || 
+        producto.nombre.toLowerCase().includes(filtros.value.busqueda.toLowerCase()) ||
+        (producto.descripcion && producto.descripcion.toLowerCase().includes(filtros.value.busqueda.toLowerCase()));
+      
+      // Filtro por tipo
+      const matchTipo = !filtros.value.tipo || producto.tipo === filtros.value.tipo;
+      
+      // Filtro por disponibilidad
+      let matchDisponibilidad = true;
+      if (filtros.value.disponibilidad === 'disponible') {
+        matchDisponibilidad = producto.disponible;
+      } else if (filtros.value.disponibilidad === 'no-disponible') {
+        matchDisponibilidad = !producto.disponible;
+      }
+      
+      return matchBusqueda && matchTipo && matchDisponibilidad;
+    });
+  }
+  
+  // Limpiar filtros
+  function limpiarFiltros() {
+    filtros.value = {
+      busqueda: '',
+      tipo: '',
+      disponibilidad: ''
+    };
+    productosFiltrados.value = [...productos.value];
+  }
+  
+  // Formatear tipo de producto
+  function formatearTipo(tipo) {
+    const tipos = {
+      plato: 'Plato',
+      bebida: 'Bebida',
+      postre: 'Postre',
+      otro: 'Otro'
+    };
+    
+    return tipos[tipo] || tipo;
+  }
+  
+  // Obtener emoji para placeholder
+  function obtenerEmoji(tipo) {
+    const emojis = {
+      plato: '🍽️',
+      bebida: '🥤',
+      postre: '🍰',
+      otro: '📦'
+    };
+    
+    return emojis[tipo] || '📦';
+  }
+  
+  // Mostrar formulario de producto (nuevo o edición)
+  function mostrarFormularioProducto(producto = null) {
+    // Resetear formulario
+    erroresForm.value = {};
+    errorFormulario.value = '';
+    
+    if (producto) {
+      // Modo edición
+      modoEdicion.value = true;
+      productoAEditar.value = producto;
+      productoForm.value = {
+        nombre: producto.nombre,
+        descripcion: producto.descripcion || '',
+        precio: producto.precio,
+        tipo: producto.tipo,
+        disponible: producto.disponible,
+        imagen_url: producto.imagen_url || ''
+      };
+    } else {
+      // Modo creación
+      modoEdicion.value = false;
+      productoAEditar.value = null;
+      productoForm.value = {
+        nombre: '',
+        descripcion: '',
+        precio: 0,
+        tipo: '',
+        disponible: true,
+        imagen_url: ''
+      };
+    }
+    
+    mostrarModal.value = true;
+  }
+  
+  // Cerrar modal
+  function cerrarModal() {
+    if (guardandoProducto.value) return;
+    mostrarModal.value = false;
+  }
+  
+  // Validar formulario
+  function validarFormulario() {
+    const errores = {};
+    
+    // Validar nombre
+    if (!productoForm.value.nombre.trim()) {
+      errores.nombre = 'El nombre es obligatorio';
+    }
+    
+    // Validar tipo
+    if (!productoForm.value.tipo) {
+      errores.tipo = 'Debes seleccionar un tipo de producto';
+    }
+    
+    // Validar precio
+    if (productoForm.value.precio === null || productoForm.value.precio === undefined) {
+      errores.precio = 'El precio es obligatorio';
+    } else if (productoForm.value.precio < 0) {
+      errores.precio = 'El precio no puede ser negativo';
+    }
+    
+    erroresForm.value = errores;
+    return Object.keys(errores).length === 0;
+  }
+  
+  // Guardar producto (crear o editar)
+  async function guardarProducto() {
+    if (!validarFormulario()) return;
+    
+    guardandoProducto.value = true;
+    errorFormulario.value = '';
+    
+    try {
+      // Datos del producto (sin imagen)
+      const productoData = {
+        actividad_id: actividad.value.id,
+        nombre: productoForm.value.nombre,
+        descripcion: productoForm.value.descripcion,
+        precio: productoForm.value.precio,
+        tipo: productoForm.value.tipo,
+        disponible: productoForm.value.disponible
+      };
+      
+      if (modoEdicion.value) {
+        // Actualizar producto existente
+        const { error } = await supabase
+          .from('productos')
+          .update(productoData)
+          .eq('id', productoAEditar.value.id);
+        
+        if (error) throw new Error('Error al actualizar el producto');
+        
+        mostrarNotificacion('Producto actualizado correctamente');
+      } else {
+        // Crear nuevo producto
+        const { error } = await supabase
+          .from('productos')
+          .insert(productoData);
+        
+        if (error) throw new Error('Error al crear el producto');
+        
+        mostrarNotificacion('Producto creado correctamente');
+      }
+      
+      // Recargar productos y cerrar modal
+      await cargarProductos();
+      cerrarModal();
+      
+    } catch (err) {
+      console.error('Error al guardar producto:', err);
+      errorFormulario.value = err.message || 'Error al guardar el producto';
+    } finally {
+      guardandoProducto.value = false;
+    }
+  }
+  
+  // Confirmar eliminación de producto
+  function confirmarEliminarProducto(producto) {
+    productoAEliminar.value = producto;
+    mostrarConfirmacion.value = true;
+  }
+  
+  // Eliminar producto
+  async function eliminarProducto() {
+    if (!productoAEliminar.value) return;
+    
+    eliminandoProducto.value = true;
+    
+    try {
+      const { error } = await supabase
+        .from('productos')
+        .delete()
+        .eq('id', productoAEliminar.value.id);
+      
+      if (error) throw new Error('Error al eliminar el producto');
+      
+      mostrarNotificacion('Producto eliminado correctamente');
+      await cargarProductos();
+      mostrarConfirmacion.value = false;
+      
+    } catch (err) {
+      console.error('Error al eliminar producto:', err);
+      mostrarNotificacion('Error al eliminar el producto', 'error');
+    } finally {
+      eliminandoProducto.value = false;
+    }
+  }
+  
+  // Mostrar notificación
+  function mostrarNotificacion(mensaje, tipo = 'exito') {
+    notificacion.value = {
+      mostrar: true,
+      mensaje,
+      tipo
+    };
+    
+    // Ocultar después de 3 segundos
+    setTimeout(() => {
+      notificacion.value.mostrar = false;
+    }, 3000);
   }
   </script>
   
@@ -1239,6 +1111,546 @@ function mostrarNotificacion(mensaje, tipo = 'exito') {
     background-color: #e2e2e2;
   }
   
+  /* Estilos para la sección de productos */
+  .filters-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-medium);
+    margin-bottom: var(--spacing-large);
+    background-color: #fff;
+    padding: var(--spacing-medium);
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .search-box {
+    flex: 1;
+    min-width: 250px;
+  }
+  
+  .search-box input {
+    width: 100%;
+    padding: var(--spacing-small);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    font-size: var(--font-size-base);
+  }
+  
+  .filter-options {
+    display: flex;
+    gap: var(--spacing-small);
+    flex-wrap: wrap;
+  }
+  
+  .filter-options select {
+    padding: var(--spacing-small);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-small);
+    background-color: #fff;
+    min-width: 150px;
+  }
+  
+  .centered-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--spacing-xlarge);
+  }
+  
+  .empty-state {
+    text-align: center;
+    padding: var(--spacing-xlarge);
+    background-color: #fff;
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+  
+  .empty-icon {
+    font-size: 3rem;
+    margin-bottom: var(--spacing-medium);
+    color: var(--text-color-light);
+  }
+  
+  .empty-state h3 {
+    margin-bottom: var(--spacing-small);
+    color: var(--text-color-dark);
+  }
+  
+  .empty-state p {
+    margin-bottom: var(--spacing-medium);
+    color: var(--text-color);
+  }
+  
+  .text-button {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-size: inherit;
+    padding: 0;
+    text-decoration: underline;
+  }
+  
+  .productos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--spacing-medium);
+  }
+  
+  .producto-card {
+    background-color: #fff;
+    border-radius: var(--border-radius);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .producto-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .producto-disponibilidad {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #28a745;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    z-index: 1;
+  }
+  
+  .producto-disponibilidad.no-disponible {
+    background-color: #dc3545;
+  }
+  
+  .producto-imagen-container {
+    height: 180px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+  }
+  
+  .producto-imagen {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .producto-imagen-placeholder {
+    font-size: 4rem;
+    color: var(--text-color-light);
+  }
+  
+  .producto-info {
+    padding: var(--spacing-medium);
+  }
+  
+  .producto-nombre {
+    margin: 0 0 var(--spacing-small);
+    font-size: 1.2rem;
+    color: var(--text-color-dark);
+  }
+  
+  .producto-tipo {
+    display: inline-block;
+    background-color: #e9ecef;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    margin-bottom: var(--spacing-small);
+    color: var(--text-color);
+  }
+  
+  .producto-descripcion {
+    margin-bottom: var(--spacing-small);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    min-height: 40px;
+    max-height: 60px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  
+  .producto-precio {
+    font-weight: bold;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+  }
+  
+  .producto-acciones {
+    padding: var(--spacing-small);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-small);
+  }
+  
+  .icon-button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .icon-button:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .icon-button.delete:hover {
+    background-color: #ffebee;
+  }
+  
+  /* Estilos mejorados para modales */
+  /* Estilos mejorados para modales */
+    .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+  
+  .modal-container {
+    background-color: #fff;
+    border-radius: 12px;
+    width: 95%;
+    max-width: 550px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    animation: modalAppear 0.3s ease-out;
+    overflow: hidden;
+  }
+  
+  @keyframes modalAppear {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .modal-header {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 16px 24px;
+    border-bottom: none;
+  }
+  
+  .modal-header h3 {
+    font-size: 1.4rem;
+    margin: 0;
+    color: white;
+    font-weight: 500;
+  }
+  
+  .close-button {
+    color: white;
+    opacity: 0.8;
+    font-size: 1.8rem;
+    transition: opacity 0.2s;
+  }
+  
+  .close-button:hover {
+    opacity: 1;
+  }
+  
+  .producto-form {
+    padding: 24px;
+  }
+  
+  .form-row {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 24px;
+  }
+  
+  .form-group:last-child {
+    margin-bottom: 0;
+  }
+  
+  .form-group label {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: var(--text-color-dark);
+  }
+  
+  .form-group input[type="text"],
+  .form-group input[type="number"],
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background-color: #f9f9f9;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15);
+    outline: none;
+    background-color: #fff;
+  }
+  
+  .input-prefix {
+    position: relative;
+  }
+  
+  .prefix {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    color: var(--text-color-dark);
+  }
+  
+  .input-prefix input {
+    padding-left: 30px !important;
+  }
+  
+  /* Checkbox personalizado más elegante */
+  .checkbox-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    padding-left: 30px;
+    cursor: pointer;
+    font-size: 1rem;
+    user-select: none;
+    margin-top: 8px;
+  }
+  
+  .checkbox-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+  }
+  
+  .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 22px;
+    width: 22px;
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+  
+  .checkbox-container:hover input ~ .checkmark {
+    background-color: #e0e0e0;
+  }
+  
+  .checkbox-container input:checked ~ .checkmark {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+  }
+  
+  .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+  }
+  
+  .checkbox-container input:checked ~ .checkmark:after {
+    display: block;
+  }
+  
+  .checkbox-container .checkmark:after {
+    left: 8px;
+    top: 4px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+  
+  /* Botones de acción en el modal */
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    justify-content: flex-end;
+  }
+  
+  .action-button {
+    min-width: 120px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.2s;
+    text-transform: none;
+    border: none;
+  }
+  
+  .action-button.primary {
+    background-color: var(--primary-color);
+    color: white;
+  }
+  
+  .action-button.primary:hover {
+    background-color: var(--button-bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+  }
+  
+  .action-button.secondary {
+    background-color: #f2f2f2;
+    color: var(--text-color-dark);
+  }
+  
+  .action-button.secondary:hover {
+    background-color: #e0e0e0;
+    transform: translateY(-2px);
+  }
+  
+  .action-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* Estilos para los mensajes de error */
+  .error-message {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 5px;
+  }
+  
+  .error-global {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+  }
+  
+  /* Modal de confirmación */
+  .confirmation-modal {
+    max-width: 400px;
+  }
+  
+  .confirmation-content {
+    padding: var(--spacing-medium);
+    text-align: center;
+  }
+  
+  .warning-icon {
+    font-size: 3rem;
+    color: #ffc107;
+    margin-bottom: var(--spacing-small);
+  }
+  
+  .confirmation-actions {
+    display: flex;
+    gap: var(--spacing-small);
+    padding: var(--spacing-medium);
+    border-top: 1px solid var(--border-color);
+    justify-content: center;
+  }
+  
+  .action-button.danger {
+    background-color: #dc3545;
+  }
+  
+  .action-button.danger:hover {
+    background-color: #c82333;
+  }
+  
+  /* Notificaciones */
+  .notificacion {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1001;
+    padding: var(--spacing-small) var(--spacing-medium);
+    border-radius: var(--border-radius-small);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .notificacion.exito {
+    background-color: #d4edda;
+    color: #155724;
+  }
+  
+  .notificacion.error {
+    background-color: #f8d7da;
+    color: #721c24;
+  }
+  
+  .notificacion-contenido {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-small);
+  }
+  
+  .notificacion-icono {
+    font-size: 1.2rem;
+  }
+  
+  .button-icon {
+    margin-right: 5px;
+  }
+  
+  .button-loader {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top: 2px solid white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+  }
+  
+  /* Ajustes responsive */
   @media (max-width: 768px) {
     .panel-container {
       flex-direction: column;
@@ -1264,437 +1676,42 @@ function mostrarNotificacion(mensaje, tipo = 'exito') {
     .dashboard-cards {
       grid-template-columns: 1fr;
     }
-  }
-
-
-  /* Estilos para la sección de productos */
-.filters-bar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--spacing-medium);
-  margin-bottom: var(--spacing-large);
-  background-color: #fff;
-  padding: var(--spacing-medium);
-  border-radius: var(--border-radius);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.search-box {
-  flex: 1;
-  min-width: 250px;
-}
-
-.search-box input {
-  width: 100%;
-  padding: var(--spacing-small);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-small);
-  font-size: var(--font-size-base);
-}
-
-.filter-options {
-  display: flex;
-  gap: var(--spacing-small);
-  flex-wrap: wrap;
-}
-
-.filter-options select {
-  padding: var(--spacing-small);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-small);
-  background-color: #fff;
-  min-width: 150px;
-}
-
-.centered-loader {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: var(--spacing-xlarge);
-}
-
-.empty-state {
-  text-align: center;
-  padding: var(--spacing-xlarge);
-  background-color: #fff;
-  border-radius: var(--border-radius);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
-
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: var(--spacing-medium);
-  color: var(--text-color-light);
-}
-
-.empty-state h3 {
-  margin-bottom: var(--spacing-small);
-  color: var(--text-color-dark);
-}
-
-.empty-state p {
-  margin-bottom: var(--spacing-medium);
-  color: var(--text-color);
-}
-
-.text-button {
-  background: none;
-  border: none;
-  color: var(--primary-color);
-  cursor: pointer;
-  font-size: inherit;
-  padding: 0;
-  text-decoration: underline;
-}
-
-.productos-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: var(--spacing-medium);
-}
-
-.producto-card {
-  background-color: #fff;
-  border-radius: var(--border-radius);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  position: relative;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.producto-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.producto-disponibilidad {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: #28a745;
-  color: white;
-  padding: 3px 8px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  z-index: 1;
-}
-
-.producto-disponibilidad.no-disponible {
-  background-color: #dc3545;
-}
-
-.producto-imagen-container {
-  height: 180px;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f8f9fa;
-}
-
-.producto-imagen {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.producto-imagen-placeholder {
-  font-size: 4rem;
-  color: var(--text-color-light);
-}
-
-.producto-info {
-  padding: var(--spacing-medium);
-}
-
-.producto-nombre {
-  margin: 0 0 var(--spacing-small);
-  font-size: 1.2rem;
-  color: var(--text-color-dark);
-}
-
-.producto-tipo {
-  display: inline-block;
-  background-color: #e9ecef;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 0.8rem;
-  margin-bottom: var(--spacing-small);
-  color: var(--text-color);
-}
-
-.producto-descripcion {
-  margin-bottom: var(--spacing-small);
-  color: var(--text-color);
-  font-size: 0.9rem;
-  min-height: 40px;
-  max-height: 60px;
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.producto-precio {
-  font-weight: bold;
-  color: var(--primary-color);
-  font-size: 1.2rem;
-}
-
-.producto-acciones {
-  padding: var(--spacing-small);
-  border-top: 1px solid var(--border-color);
-  display: flex;
-  justify-content: flex-end;
-  gap: var(--spacing-small);
-}
-
-.icon-button {
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  padding: 5px;
-  border-radius: 4px;
-  transition: background-color 0.2s;
-}
-
-.icon-button:hover {
-  background-color: #f0f0f0;
-}
-
-.icon-button.delete:hover {
-  background-color: #ffebee;
-}
-
-/* Modal */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-container {
-  background-color: #fff;
-  border-radius: var(--border-radius);
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--spacing-medium);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.modal-header h3 {
-  margin: 0;
-  color: var(--text-color-dark);
-}
-
-.close-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: var(--text-color);
-}
-
-.producto-form {
-  padding: var(--spacing-medium);
-}
-
-.input-prefix {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.prefix {
-  position: absolute;
-  left: 10px;
-  color: var(--text-color);
-}
-
-.input-prefix input {
-  padding-left: 25px;
-}
-
-.imagen-upload-container {
-  margin-top: var(--spacing-small);
-}
-
-.imagen-preview {
-  position: relative;
-  width: 100%;
-  max-width: 300px;
-  margin: 0 auto;
-}
-
-.imagen-preview img {
-  width: 100%;
-  max-height: 200px;
-  object-fit: contain;
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-small);
-}
-
-.remove-image-button {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  background-color: #dc3545;
-  color: white;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.upload-placeholder {
-  border: 2px dashed var(--border-color);
-  border-radius: var(--border-radius-small);
-  padding: var(--spacing-medium);
-  text-align: center;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.upload-placeholder:hover {
-  background-color: #f0f0f0;
-}
-
-.upload-icon {
-  font-size: 2rem;
-  margin-bottom: var(--spacing-small);
-  color: var(--text-color-light);
-}
-
-.error-global {
-  background-color: #f8d7da;
-  color: #721c24;
-  padding: var(--spacing-small);
-  border-radius: var(--border-radius-small);
-  margin-bottom: var(--spacing-medium);
-}
-
-.button-loader {
-  width: 20px;
-  height: 20px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid white;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto;
-}
-
-/* Modal de confirmación */
-.confirmation-modal {
-  max-width: 400px;
-}
-
-.confirmation-content {
-  padding: var(--spacing-medium);
-  text-align: center;
-}
-
-.warning-icon {
-  font-size: 3rem;
-  color: #ffc107;
-  margin-bottom: var(--spacing-small);
-}
-
-.confirmation-actions {
-  display: flex;
-  gap: var(--spacing-small);
-  padding: var(--spacing-medium);
-  border-top: 1px solid var(--border-color);
-  justify-content: center;
-}
-
-.action-button.danger {
-  background-color: #dc3545;
-}
-
-.action-button.danger:hover {
-  background-color: #c82333;
-}
-
-/* Notificaciones */
-.notificacion {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 1001;
-  padding: var(--spacing-small) var(--spacing-medium);
-  border-radius: var(--border-radius-small);
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  animation: slideIn 0.3s ease-out;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-.notificacion.exito {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.notificacion.error {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.notificacion-contenido {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-small);
-}
-
-.notificacion-icono {
-  font-size: 1.2rem;
-}
-
-.button-icon {
-  margin-right: 5px;
-}
-
-@media (max-width: 768px) {
-  .productos-grid {
-    grid-template-columns: 1fr;
+    
+    .productos-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .filter-options {
+      width: 100%;
+    }
+    
+    .filter-options select {
+      flex: 1;
+    }
   }
   
-  .filter-options {
-    width: 100%;
+  @media (max-width: 640px) {
+    .form-row {
+      flex-direction: column;
+      gap: 0;
+    }
+    
+    .modal-container {
+      width: 100%;
+      max-width: none;
+      border-radius: 0;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .producto-form {
+      flex: 1;
+      overflow-y: auto;
+    }
+    
+    .form-actions {
+      padding-bottom: 20px;
+    }
   }
-  
-  .filter-options select {
-    flex: 1;
-  }
-}
   </style>
