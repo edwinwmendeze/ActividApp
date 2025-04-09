@@ -1,0 +1,30 @@
+/* assets/css/variables.css */
+
+/* Colores */
+:root {
+    --primary-color: #333;         /* Color primario oscuro para un look minimalista */
+    --secondary-color: #555;       /* Color secundario para acentos */
+    --accent-color: #f9f9f9;        /* Fondo claro para secciones */
+    --text-color: #222;            /* Texto en negro o casi negro */
+    --background-color: #fff;      /* Fondo blanco para todo */
+    --button-bg: #333;             /* Botón con color primario */
+    --button-bg-hover: #555;       /* Hover más claro */
+    --border-radius: 4px;          /* Bordes sutiles, no muy redondeados */
+  }
+  
+  /* Tipografía */
+  :root {
+    --font-family: 'Meslo Mono', monospace;  /* Uso de Meslo Mono */
+    --font-size-base: 16px;
+    --font-size-large: 18px;
+    --font-size-xl: 2.5rem;
+    --font-weight-bold: 700;
+    --font-weight-normal: 400;
+  }
+  
+  /* Espaciado */
+  :root {
+    --spacing-small: 8px;
+    --spacing-medium: 16px;
+    --spacing-large: 32px;
+  }

@@ -1,0 +1,60 @@
+/* assets/css/base.css */
+
+/* Estilos básicos para todos los elementos */
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: var(--font-family);
+    font-size: var(--font-size-base);
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: var(--font-weight-bold);
+    margin: 0 0 var(--spacing-medium) 0;
+  }
+  
+  p {
+    font-size: var(--font-size-large);
+    margin: 0 0 var(--spacing-medium) 0;
+  }
+  
+  /* Enlaces simples */
+  a {
+    color: var(--primary-color);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  a:hover {
+    color: var(--secondary-color);
+  }
+
+  /* assets/css/base.css */
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-medium);
+  }
+  
+  input,
+  textarea {
+    padding: var(--spacing-small);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--primary-color);
+  }
+  
+  button {
+    padding: var(--spacing-small) var(--spacing-medium);
+    background-color: var(--button-bg);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: var(--button-bg-hover);
+  }
