@@ -4,6 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
 
+
   modules: [
     '@nuxt/fonts',
     '@nuxt/icon',
@@ -19,7 +20,7 @@ export default defineNuxtConfig({
   ],
   supabase: {
     // Desactivar completamente el redireccionamiento
-    redirect: true,
+    redirect: false,
     // Agregar explícitamente las credenciales
     url: process.env.NUXT_SUPABASE_URL,
     key: process.env.NUXT_SUPABASE_KEY
