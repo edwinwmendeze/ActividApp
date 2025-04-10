@@ -245,7 +245,6 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
-import { useSupabaseClient } from '@nuxtjs/supabase/dist/runtime/composables/useSupabaseClient';
 import ProductosMasVendidos from '~/components/Reportes/ProductosMasVendidos.vue';
 import { format, startOfWeek, startOfMonth, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -261,23 +260,28 @@ const props = defineProps({
   }
 });
 
-const supabase = useSupabaseClient();
-const loading = ref(false);
+const loading = ref(true);
 const error = ref('');
-const periodoSeleccionado = ref('hoy');
 const pedidos = ref([]);
-const pedidosItems = ref([]);
-const colaboradores = ref([]);
-const productosVendidos = ref([]);
+const totales = ref({
+  ventas: 0,
+  ingresos: 0,
+  pagados: 0,
+  pendientes: 0
+});
 const pedidosRecientes = ref([]);
-const pedidosPendientes = ref([]);
-const totalPedidos = ref(0);
+const periodoSeleccionado = ref('semana');
+let supabase = null;
+
+// Variables reactivas
 const ingresosTotales = ref(0);
 const totalColaboradores = ref(0);
 const posicionColaborador = ref(0);
 const productoEstrella = ref(null);
 const filtroEntrega = ref('todos');
 const filtroEstado = ref('todos');
+const pedidosPendientes = ref([]);
+const totalPedidos = ref(0);
 
 // Función para formatear moneda
 const formatCurrency = (value) => {
@@ -335,10 +339,20 @@ const pedidosFiltrados = computed(() => {
   return pedidosFiltradosPorTipo;
 });
 
+// Cargar datos al inicio
+onMounted(async () => {
+  // Solo importamos el cliente Supabase en el lado del cliente
+  if (process.client) {
+    const { useSupabaseClient } = await import('#imports');
+    supabase = useSupabaseClient();
+    // Cargar datos después de obtener el cliente
+    await cargarDatos();
+  }
+});
+
 // Cargar datos de pedidos del colaborador
 async function cargarDatos() {
-  loading.value = true;
-  error.value = '';
+  if (!supabase) return;
   
   try {
     // Configurar filtro de fecha según periodo
@@ -565,10 +579,6 @@ function exportarCSV() {
 
 // Observar cambios en el periodo seleccionado
 watch(periodoSeleccionado, () => {
-  cargarDatos();
-});
-
-onMounted(() => {
   cargarDatos();
 });
 

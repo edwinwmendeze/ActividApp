@@ -56,7 +56,6 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useSupabaseClient } from '@nuxtjs/supabase/dist/runtime/composables/useSupabaseClient';
 import BaseChart from './BaseChart.vue';
 import { format, startOfWeek, startOfMonth, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -68,8 +67,8 @@ const props = defineProps({
   }
 });
 
-const supabase = useSupabaseClient();
-const loading = ref(false);
+const supabase = null;
+const loading = ref(true);
 const error = ref('');
 const pedidos = ref([]);
 const periodoSeleccionado = ref('semana');
@@ -210,6 +209,7 @@ const chartOptions = {
 
 // Función para cargar datos
 async function cargarDatos() {
+  if (!supabase) return;
   loading.value = true;
   error.value = '';
   
@@ -249,8 +249,15 @@ async function cargarDatos() {
   }
 }
 
-onMounted(() => {
-  cargarDatos();
+// Cargar datos al montar el componente
+onMounted(async () => {
+  // Solo importamos el cliente Supabase en el lado del cliente
+  if (process.client) {
+    const { useSupabaseClient } = await import('#imports');
+    supabase = useSupabaseClient();
+    // Cargar datos después de obtener el cliente
+    await cargarDatos();
+  }
 });
 
 // Método para ser llamado desde el dashboard

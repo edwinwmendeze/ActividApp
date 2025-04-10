@@ -138,7 +138,6 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useSupabaseClient } from '@nuxtjs/supabase/dist/runtime/composables/useSupabaseClient';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -149,8 +148,8 @@ const props = defineProps({
   }
 });
 
-const supabase = useSupabaseClient();
-const loading = ref(false);
+let supabase = null;
+const loading = ref(true);
 const error = ref('');
 const pedidos = ref([]);
 const colaboradores = ref([]);
@@ -204,6 +203,7 @@ const totalMoroso = computed(() => {
 
 // Función para cargar datos desde Supabase
 async function cargarDatos() {
+  if (!supabase) return;
   loading.value = true;
   error.value = '';
   
@@ -334,8 +334,15 @@ function exportarCSV() {
   document.body.removeChild(link);
 }
 
-onMounted(() => {
-  cargarDatos();
+// Cargar datos al montar el componente
+onMounted(async () => {
+  // Solo importamos el cliente Supabase en el lado del cliente
+  if (process.client) {
+    const { useSupabaseClient } = await import('#imports');
+    supabase = useSupabaseClient();
+    // Cargar datos después de obtener el cliente
+    await cargarDatos();
+  }
 });
 </script>
 
