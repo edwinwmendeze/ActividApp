@@ -1,4 +1,4 @@
-// types/index.d.ts
+// types/index.ts (cambiado de .d.ts a .ts para mejor compatibilidad)
 // Re-export all types
 export * from './actividad';
 export * from './colaborador';

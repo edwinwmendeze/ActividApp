@@ -7,7 +7,7 @@ export interface Producto {
     nombre: string;
     descripcion: string;
     precio: number;
-    tipo: 'plato' | 'bebida' | 'postre' | 'otro';
+    tipo: ProductoTipo;
     disponible: boolean;
     imagen_url?: string;
     destacado?: boolean;
@@ -21,7 +21,7 @@ export interface ProductoFormData {
     nombre: string;
     descripcion: string;
     precio: number;
-    tipo: 'plato' | 'bebida' | 'postre' | 'otro';
+    tipo: ProductoTipo;
     disponible: boolean;
     imagen_url?: string;
 }

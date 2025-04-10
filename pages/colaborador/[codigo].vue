@@ -125,6 +125,14 @@
             @refresh="cargarEstadisticas"
           />
         </div>
+        
+        <!-- Tab: Reportes -->
+        <div v-else-if="activeTab === 'reportes'" class="tab-content">
+          <ReportesColaborador 
+            :colaborador-id="colaborador.id" 
+            :actividad-id="actividad.id"
+          />
+        </div>
       </div>
     </div>
     
@@ -138,6 +146,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import PedidosList from '@/components/Collaborator/PedidosList.vue'
+import ReportesColaborador from '@/components/Collaborator/ReportesColaborador.vue'
 import { formatDate as formatDateUtil, fromUTC } from '~/utils/date'
 
 // Obtener código de acceso de la URL
@@ -161,8 +170,9 @@ const pedidosListRef = ref(null)
 // Estado de pestañas
 const activeTab = ref('dashboard')
 const tabs = [
-  { id: 'dashboard', name: 'Panel General', icon: '📊' },
-  { id: 'pedidos', name: 'Mis Pedidos', icon: '📝' }
+  { id: 'dashboard', name: 'General', icon: '🏠' },
+  { id: 'pedidos', name: 'Pedidos', icon: '📋' },
+  { id: 'reportes', name: 'Reportes', icon: '📊' }
 ]
 
 // Estado de estadísticas

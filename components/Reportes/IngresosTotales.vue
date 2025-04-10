@@ -60,11 +60,11 @@ const error = ref('');
 const pedidos = ref([]);
 const periodoSeleccionado = ref('semana');
 
-// Funciu00f3n para formatear moneda
+// Función para formatear moneda
 const formatCurrency = (value) => {
-  return new Intl.NumberFormat('es-CO', {
+  return new Intl.NumberFormat('es-PE', {
     style: 'currency',
-    currency: 'COP',
+    currency: 'PEN',
     minimumFractionDigits: 0
   }).format(value);
 };
@@ -82,23 +82,23 @@ const promedioPorPedido = computed(() => {
   return ingresoTotal.value / pedidos.value.length;
 });
 
-// Agrupar datos por fecha para el gru00e1fico
+// Agrupar datos por fecha para el gráfico
 const datosAgrupados = computed(() => {
   if (pedidos.value.length === 0) return [];
   
-  // Determinar formato de fecha segu00fan periodo
+  // Determinar formato de fecha según periodo
   const formatoFecha = periodoSeleccionado.value === 'hoy' ? 'HH:mm' : 'dd MMM';
   
   // Ordenar pedidos por fecha
   const pedidosOrdenados = [...pedidos.value].sort((a, b) => {
-    return new Date(a.created_at) - new Date(b.created_at);
+    return new Date(a.fecha_pedido) - new Date(b.fecha_pedido);
   });
   
   // Agrupar pedidos por fecha
   const agrupados = {};
   
   pedidosOrdenados.forEach(pedido => {
-    const fecha = parseISO(pedido.created_at);
+    const fecha = parseISO(pedido.fecha_pedido);
     const fechaFormateada = format(fecha, formatoFecha, { locale: es });
     
     if (!agrupados[fechaFormateada]) {
@@ -117,7 +117,7 @@ const datosAgrupados = computed(() => {
   return Object.values(agrupados);
 });
 
-// Datos para el gru00e1fico
+// Datos para el gráfico
 const chartData = computed(() => {
   const labels = datosAgrupados.value.map(item => item.fecha);
   const datos = datosAgrupados.value.map(item => item.total);
@@ -167,7 +167,7 @@ const chartOptions = {
   }
 };
 
-// Funciu00f3n para cargar datos desde Supabase
+// Función para cargar datos desde Supabase
 async function cargarDatos() {
   loading.value = true;
   error.value = '';
@@ -179,20 +179,20 @@ async function cargarDatos() {
       .eq('actividad_id', props.actividadId)
       .eq('estado', 'pagado'); // Solo pedidos pagados para ingresos
       
-    // Filtrar por fecha segu00fan el peru00edodo seleccionado
+    // Filtrar por fecha según el período seleccionado
     const ahora = new Date();
     
     if (periodoSeleccionado.value === 'hoy') {
       const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()).toISOString();
-      query = query.gte('created_at', hoy);
+      query = query.gte('fecha_pedido', hoy);
     } 
     else if (periodoSeleccionado.value === 'semana') {
       const inicioSemana = startOfWeek(ahora, { locale: es }).toISOString();
-      query = query.gte('created_at', inicioSemana);
+      query = query.gte('fecha_pedido', inicioSemana);
     }
     else if (periodoSeleccionado.value === 'mes') {
       const inicioMes = startOfMonth(ahora).toISOString();
-      query = query.gte('created_at', inicioMes);
+      query = query.gte('fecha_pedido', inicioMes);
     }
     
     // Ejecutar consulta

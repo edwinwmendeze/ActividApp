@@ -50,8 +50,8 @@
         </div>
         
         <div class="list-cell fecha">
-          <div class="cell-main">{{ formatFecha(pedido.created_at) }}</div>
-          <div class="cell-secondary">{{ formatHora(pedido.created_at) }}</div>
+          <div class="cell-main">{{ formatFecha(pedido.fecha_pedido) }}</div>
+          <div class="cell-secondary">{{ formatHora(pedido.fecha_pedido) }}</div>
         </div>
         
         <div class="list-cell monto">
@@ -95,7 +95,7 @@
             </div>
             <div class="detail-row">
               <div class="detail-label">Fecha:</div>
-              <div class="detail-value">{{ formatFecha(pedidoSeleccionado?.created_at) }} {{ formatHora(pedidoSeleccionado?.created_at) }}</div>
+              <div class="detail-value">{{ formatFecha(pedidoSeleccionado?.fecha_pedido) }} {{ formatHora(pedidoSeleccionado?.fecha_pedido) }}</div>
             </div>
             <div class="detail-row">
               <div class="detail-label">Estado:</div>
@@ -160,9 +160,9 @@ const itemsDetalle = ref([]);
 
 // Funciones de formateo
 const formatCurrency = (value) => {
-  return new Intl.NumberFormat('es-CO', {
+  return new Intl.NumberFormat('es-PE', {
     style: 'currency',
-    currency: 'COP',
+    currency: 'PEN',
     minimumFractionDigits: 0
   }).format(value || 0);
 };
@@ -311,7 +311,7 @@ function exportarCSV() {
   const data = pedidosMorosos.value.map(p => [
     p.id,
     p.colaborador_nombre,
-    `${formatFecha(p.created_at)} ${formatHora(p.created_at)}`,
+    `${formatFecha(p.fecha_pedido)} ${formatHora(p.fecha_pedido)}`,
     p.estado,
     p.total
   ]);

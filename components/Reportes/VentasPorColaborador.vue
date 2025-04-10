@@ -38,6 +38,8 @@
 import { ref, onMounted, computed } from 'vue';
 import { useSupabaseClient } from '#imports';
 import BaseChart from './BaseChart.vue';
+import { startOfWeek, startOfMonth } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const props = defineProps({
   actividadId: {
@@ -137,17 +139,15 @@ async function cargarDatos() {
     
     if (periodoSeleccionado.value === 'hoy') {
       const hoy = new Date(ahora.getFullYear(), ahora.getMonth(), ahora.getDate()).toISOString();
-      query = query.gte('created_at', hoy);
+      query = query.gte('fecha_pedido', hoy);
     } 
     else if (periodoSeleccionado.value === 'semana') {
-      const inicioSemana = new Date(ahora);
-      inicioSemana.setDate(ahora.getDate() - ahora.getDay());
-      inicioSemana.setHours(0, 0, 0, 0);
-      query = query.gte('created_at', inicioSemana.toISOString());
+      const inicioSemana = startOfWeek(ahora, { locale: es });
+      query = query.gte('fecha_pedido', inicioSemana.toISOString());
     }
     else if (periodoSeleccionado.value === 'mes') {
-      const inicioMes = new Date(ahora.getFullYear(), ahora.getMonth(), 1).toISOString();
-      query = query.gte('created_at', inicioMes);
+      const inicioMes = startOfMonth(ahora).toISOString();
+      query = query.gte('fecha_pedido', inicioMes);
     }
     
     // Ejecutar consulta

@@ -1,327 +1,350 @@
 <template>
-  <div class="chart-report-card">
-    <div class="report-header">
-      <h3>Productos Más Vendidos</h3>
-      <div class="report-controls">
-        <select v-model="limiteMostrados" @change="actualizarDatos">
-          <option value="5">Top 5</option>
-          <option value="10">Top 10</option>
-          <option value="20">Top 20</option>
-        </select>
-      </div>
+  <div class="dashboard-card">
+    <div class="card-header" v-if="title">
+      <h3>{{ title }}</h3>
     </div>
-    
-    <BaseChart 
-      type="pie" 
-      :data="chartData" 
-      :options="chartOptions" 
-      :loading="loading" 
-      :error="error"
-      height="300px"
-    />
-    
-    <div class="top-products-list" v-if="!loading && !error && productosMasVendidos.length > 0">
-      <h4>Detalle de Productos</h4>
-      <div class="list-container">
-        <div v-for="(producto, index) in productosMasVendidos" :key="producto.id" class="product-row">
-          <div class="product-rank">{{ index + 1 }}</div>
-          <div class="product-info">
-            <div class="product-name">{{ producto.nombre }}</div>
-            <div class="product-category">{{ producto.tipo || 'Sin categoría' }}</div>
-          </div>
-          <div class="product-stats">
-            <div class="product-sales">{{ producto.cantidad }} vendidos</div>
-            <div class="product-revenue">{{ formatCurrency(producto.ingreso) }}</div>
-          </div>
-        </div>
-      </div>
+    <div v-if="loading" class="loading-indicator">
+      <div class="spinner"></div>
+      <p>Cargando datos...</p>
+    </div>
+    <table v-else-if="productosVendidos.length > 0" class="data-table">
+      <thead>
+        <tr>
+          <th class="producto-celda">Producto</th>
+          <th class="cantidad-celda">Cantidad</th>
+          <th class="total-celda">Total Vendido</th>
+          <th v-if="showPagado" class="pagado-celda">Pagado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="producto in productosVendidos.slice(0, maxItems)" :key="producto.id">
+          <td class="producto-celda">{{ producto.nombre }}</td>
+          <td class="cantidad-celda">{{ producto.cantidad }}</td>
+          <td class="total-celda">{{ formatCurrency(producto.total) }}</td>
+          <td v-if="showPagado" class="pagado-celda">
+            <span :class="`pagado-tag ${producto.pagado ? 'pagado' : 'no-pagado'}`">{{ producto.pagado ? 'Sí' : 'No' }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div v-else class="empty-state">
+      <p>No hay datos de productos vendidos disponibles</p>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useSupabaseClient } from '#imports';
-import BaseChart from './BaseChart.vue';
 
+// Props
 const props = defineProps({
+  title: {
+    type: String,
+    default: 'Productos Más Vendidos'
+  },
   actividadId: {
     type: String,
     required: true
+  },
+  colaboradorId: {
+    type: String,
+    default: null
+  },
+  maxItems: {
+    type: Number,
+    default: 10
+  },
+  showPagado: {
+    type: Boolean,
+    default: true
+  },
+  filtrarSoloPagados: {
+    type: Boolean,
+    default: false
   }
 });
 
+// Variables
 const supabase = useSupabaseClient();
 const loading = ref(false);
 const error = ref('');
-const productos = ref([]);
-const pedidoItems = ref([]);
-const limiteMostrados = ref('5');
+const productosVendidos = ref([]);
 
 // Función para formatear moneda
 const formatCurrency = (value) => {
-  return new Intl.NumberFormat('es-CO', {
+  return new Intl.NumberFormat('es-PE', {
     style: 'currency',
-    currency: 'COP',
+    currency: 'PEN',
     minimumFractionDigits: 0
-  }).format(value);
+  }).format(value || 0);
 };
 
-// Calcular productos más vendidos
-const productosMasVendidos = computed(() => {
-  // Crear mapa de ventas por producto
-  const ventas = {};
-  
-  pedidoItems.value.forEach(item => {
-    if (!ventas[item.producto_id]) {
-      const producto = productos.value.find(p => p.id === item.producto_id);
-      if (producto) {
-        ventas[item.producto_id] = {
-          id: producto.id,
-          nombre: producto.nombre,
-          tipo: producto.tipo,
-          cantidad: 0,
-          ingreso: 0
-        };
-      }
-    }
-    
-    if (ventas[item.producto_id]) {
-      ventas[item.producto_id].cantidad += item.cantidad || 1;
-      ventas[item.producto_id].ingreso += (item.precio || 0) * (item.cantidad || 1);
-    }
-  });
-  
-  // Convertir a array y ordenar por cantidad vendida
-  return Object.values(ventas)
-    .sort((a, b) => b.cantidad - a.cantidad)
-    .slice(0, parseInt(limiteMostrados.value));
-});
-
-// Datos para el gráfico
-const chartData = computed(() => {
-  const labels = productosMasVendidos.value.map(p => p.nombre);
-  const data = productosMasVendidos.value.map(p => p.cantidad);
-  
-  // Generar colores dinámicos
-  const generateColors = (count) => {
-    const baseColors = [
-      'rgba(54, 162, 235, 0.7)', // azul
-      'rgba(255, 99, 132, 0.7)',  // rojo
-      'rgba(255, 206, 86, 0.7)',  // amarillo
-      'rgba(75, 192, 192, 0.7)',  // verde
-      'rgba(153, 102, 255, 0.7)', // morado
-      'rgba(255, 159, 64, 0.7)'   // naranja
-    ];
-    
-    const colors = [];
-    for (let i = 0; i < count; i++) {
-      colors.push(baseColors[i % baseColors.length]);
-    }
-    return colors;
-  };
-  
-  const backgroundColor = generateColors(labels.length);
-  const borderColor = backgroundColor.map(color => color.replace('0.7', '1'));
-  
-  return {
-    labels,
-    datasets: [
-      {
-        data,
-        backgroundColor,
-        borderColor,
-        borderWidth: 1
-      }
-    ]
-  };
-});
-
-const chartOptions = {
-  plugins: {
-    legend: {
-      position: 'right',
-      labels: {
-        boxWidth: 15,
-        font: {
-          size: 11
-        }
-      }
-    },
-    tooltip: {
-      callbacks: {
-        label: function(context) {
-          const label = context.label || '';
-          const value = context.raw || 0;
-          const dataset = context.dataset;
-          const total = dataset.data.reduce((acc, data) => acc + data, 0);
-          const percentage = ((value / total) * 100).toFixed(1);
-          return `${label}: ${value} (${percentage}%)`;
-        }
-      }
-    }
-  }
-};
-
-// Función para actualizar datos
-function actualizarDatos() {
-  // No necesitamos recargar los datos desde el servidor
-  // solo actualizar el límite que mostramos en la UI
-}
-
-// Función para cargar datos desde Supabase
+// Cargar datos
 async function cargarDatos() {
   loading.value = true;
   error.value = '';
   
   try {
-    // Cargar productos de la actividad
-    const { data: productosData, error: productosError } = await supabase
-      .from('productos')
-      .select('*')
-      .eq('actividad_id', props.actividadId);
-      
-    if (productosError) throw new Error('Error al cargar productos');
-    productos.value = productosData || [];
-    
-    // Cargar pedidos de la actividad
-    const { data: pedidosData, error: pedidosError } = await supabase
+    // Construir la consulta para los pedidos
+    let query = supabase
       .from('pedidos')
-      .select('id')
-      .eq('actividad_id', props.actividadId);
-      
-    if (pedidosError) throw new Error('Error al cargar pedidos');
+      .select('id');
     
-    // Si hay pedidos, cargar los items de esos pedidos
+    // Filtrar por actividad
+    query = query.eq('actividad_id', props.actividadId);
+    
+    // Filtrar por colaborador si se proporciona un ID
+    if (props.colaboradorId) {
+      query = query.eq('colaborador_id', props.colaboradorId);
+    }
+    
+    // Filtrar solo pedidos pagados si así se solicita
+    if (props.filtrarSoloPagados) {
+      query = query.eq('pagado', true);
+    }
+    
+    // Ejecutar la consulta
+    const { data: pedidosData, error: pedidosError } = await query;
+    
+    if (pedidosError) {
+      throw pedidosError;
+    }
+    
+    // Si hay pedidos, obtenemos sus items desde la tabla pedido_items
     if (pedidosData && pedidosData.length > 0) {
       const pedidosIds = pedidosData.map(p => p.id);
       
+      // Obtenemos información de pago de los pedidos
+      const { data: pedidosInfoData, error: pedidosInfoError } = await supabase
+        .from('pedidos')
+        .select('id, pagado')
+        .in('id', pedidosIds);
+      
+      if (pedidosInfoError) {
+        throw pedidosInfoError;
+      }
+      
+      // Crear un mapa de pedidos con información de pago
+      const pedidosInfoMap = {};
+      pedidosInfoData.forEach(pedido => {
+        pedidosInfoMap[pedido.id] = pedido.pagado;
+      });
+      
+      // Obtenemos los items de esos pedidos
       const { data: itemsData, error: itemsError } = await supabase
         .from('pedido_items')
-        .select('*')
+        .select('*, producto:producto_id(*)')
         .in('pedido_id', pedidosIds);
-        
-      if (itemsError) throw new Error('Error al cargar items de pedidos');
-      pedidoItems.value = itemsData || [];
+      
+      if (itemsError) {
+        throw itemsError;
+      }
+      
+      // Procesar productos vendidos
+      const productoMap = new Map();
+      
+      if (itemsData && itemsData.length > 0) {
+        for (const item of itemsData) {
+          // Verificar que el producto exista
+          if (!item.producto) continue;
+          
+          const id = item.producto.id;
+          const nombre = item.producto.nombre;
+          const cantidad = item.cantidad || 1;
+          // Usar el precio del item o, si no existe, el precio del producto
+          const precio = item.precio || (item.producto.precio || 0);
+          
+          // Obtener estado de pago del pedido asociado
+          const pedidoId = item.pedido_id;
+          const pagado = pedidosInfoMap[pedidoId] || false;
+          
+          if (id && nombre) {
+            if (productoMap.has(id)) {
+              const producto = productoMap.get(id);
+              producto.cantidad += cantidad;
+              producto.total += cantidad * precio;
+              // Si alguno de los pedidos está pagado, marcamos el producto como pagado
+              producto.pagado = producto.pagado || pagado;
+            } else {
+              productoMap.set(id, {
+                id,
+                nombre,
+                cantidad,
+                total: cantidad * precio,
+                pagado
+              });
+            }
+          }
+        }
+      }
+      
+      // Convertir el mapa a un array
+      const productosArray = Array.from(productoMap.values());
+      
+      // Ordenar por cantidad vendida (mayor primero)
+      productosArray.sort((a, b) => b.cantidad - a.cantidad);
+      
+      productosVendidos.value = productosArray;
+    } else {
+      productosVendidos.value = [];
     }
-    
   } catch (err) {
-    console.error('Error al cargar datos:', err);
+    console.error('Error al cargar productos vendidos:', err);
     error.value = err.message || 'Error al cargar datos';
+    productosVendidos.value = [];
   } finally {
     loading.value = false;
   }
 }
 
+// Inicializar
 onMounted(() => {
   cargarDatos();
 });
 </script>
 
 <style scoped>
-.chart-report-card {
+.dashboard-card {
   background-color: white;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  padding: 20px;
-  margin-bottom: 25px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin-bottom: 20px;
+  padding: 0 0 10px 0;
 }
 
-.report-header {
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  background-color: #f9fafb;
 }
 
-.report-header h3 {
+.card-header h3 {
   margin: 0;
   font-size: 1.1rem;
+  font-weight: 600;
   color: #333;
 }
 
-.report-controls select {
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background-color: white;
-  font-size: 0.9rem;
-}
-
-.top-products-list {
-  margin-top: 20px;
-  border-top: 1px solid #eee;
-  padding-top: 15px;
-}
-
-.top-products-list h4 {
-  margin: 0 0 15px 0;
-  font-size: 0.95rem;
-  color: #555;
-}
-
-.list-container {
-  max-height: 300px;
-  overflow-y: auto;
-  border-radius: 8px;
-  border: 1px solid #eee;
-}
-
-.product-row {
+.loading-indicator {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  padding: 12px 15px;
-  border-bottom: 1px solid #f2f2f2;
+  justify-content: center;
+  padding: 30px 0;
 }
 
-.product-row:last-child {
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-top: 3px solid #3498db;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed; /* Fijar ancho de tabla */
+}
+
+.data-table th,
+.data-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.data-table th {
+  background-color: #f9fafb;
+  font-weight: 600;
+  color: #555;
+  position: relative;
+}
+
+.data-table th::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: #e0e0e0;
+}
+
+.data-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.data-table tbody tr:last-child td {
   border-bottom: none;
 }
 
-.product-rank {
-  width: 25px;
-  height: 25px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #f0f0f0;
-  border-radius: 50%;
-  font-size: 0.8rem;
+.producto-celda {
+  width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-weight: 500;
-  color: #555;
-  margin-right: 12px;
 }
 
-.product-info {
-  flex: 1;
+.cantidad-celda {
+  width: 15%;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
-.product-name {
-  font-weight: 500;
-  font-size: 0.95rem;
-  color: #333;
-  margin-bottom: 3px;
-}
-
-.product-category {
-  font-size: 0.8rem;
-  color: #777;
-}
-
-.product-stats {
+.total-celda {
+  width: 20%;
   text-align: right;
-}
-
-.product-sales {
+  font-variant-numeric: tabular-nums;
   font-weight: 500;
-  font-size: 0.95rem;
-  color: #333;
-  margin-bottom: 3px;
+  color: #1f2937;
 }
 
-.product-revenue {
+.pagado-celda {
+  width: 20%;
+  text-align: center;
+}
+
+.pagado-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
   font-size: 0.85rem;
-  color: #4caf50;
   font-weight: 500;
+  min-width: 60px;
+  text-align: center;
+}
+
+.pagado-tag.pagado {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.pagado-tag.no-pagado {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.empty-state {
+  padding: 30px 20px;
+  text-align: center;
+  color: #666;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  margin: 10px;
 }
 </style>

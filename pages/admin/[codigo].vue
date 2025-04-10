@@ -44,13 +44,6 @@
           <span class="nav-icon">{{ tab.icon }}</span>
           {{ tab.name }}
         </button>
-        <button 
-          @click="activeTab = 'reportes'"
-          :class="['nav-button', { active: activeTab === 'reportes' }]"
-        >
-          <span class="nav-icon">📊</span>
-          Reportes
-        </button>
       </div>
       
       <!-- Contenido del tab activo -->

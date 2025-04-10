@@ -64,7 +64,7 @@
         <h1>Ticket Pedido</h1>
         <div class="evento-info">
           <h2>{{ actividad.nombre || 'Actividad' }}</h2>
-          <p class="fecha">{{ formatDate(pedido.fecha || pedido.created_at || new Date()) }}</p>
+          <p class="fecha">{{ formatDate(pedido.fecha_pedido || new Date()) }}</p>
         </div>
       </div>
       
@@ -490,6 +490,11 @@ onMounted(() => {
   max-width: 500px;
   margin: 0 auto;
   transition: all 0.3s ease;
+  font-size: 1rem;
+  margin-top: 20px;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
 }
 
 /* Estilos para el error de actividad incorrecto */
