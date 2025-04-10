@@ -37,7 +37,8 @@ export function formatDate(date, options = {}) {
     month: '2-digit',
     year: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
+    hour12: true // Cambio a formato 12 horas (AM/PM)
   };
   
   const mergedOptions = { ...defaultOptions, ...options };
