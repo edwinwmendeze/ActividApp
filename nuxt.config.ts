@@ -34,30 +34,15 @@ export default defineNuxtConfig({
       supabaseKey: process.env.NUXT_SUPABASE_KEY
     }
   },
-  // Configurar prerenderizado para evitar errores durante la generación estática
+  
+  // Configuración de generación estática
+  ssr: false, // Desactivar SSR completamente para toda la aplicación
+  
+  // Desactivar el crawler para evitar que intente prerenderizar páginas vinculadas
   nitro: {
     prerender: {
-      // Solo prerenderizar la página de inicio
-      routes: ['/'],
-      // Ignorar los errores de prerenderizado para permitir que la compilación continúe
-      ignore: [
-        // Ignorar rutas problemáticas
-        '/acceso-codigo',
-        '/supabase-test',
-        '/crear-actividad',
-        '/escanear-pedido',
-        '/colaborador/admin/**',
-        '/admin/**'
-      ]
+      crawlLinks: false,
+      routes: ['/'] // Prerenderizar solo la página de inicio
     }
-  },
-  // Configurar modo de generación para SPA en rutas dinámicas
-  routeRules: {
-    '/admin/**': { ssr: false },
-    '/colaborador/**': { ssr: false },
-    '/acceso-codigo': { ssr: false },
-    '/crear-actividad': { ssr: false },
-    '/escanear-pedido': { ssr: false },
-    '/supabase-test': { ssr: false }
   }
 })
