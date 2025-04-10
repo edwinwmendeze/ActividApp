@@ -1,5 +1,5 @@
 // utils/formatters.ts
-export function formatDate(dateString: string): string {
+export function formatearFecha(dateString: string): string {
     if (!dateString) return 'No disponible';
     
     const date = new Date(dateString);

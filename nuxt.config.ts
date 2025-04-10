@@ -33,5 +33,31 @@ export default defineNuxtConfig({
       supabaseUrl: process.env.NUXT_SUPABASE_URL,
       supabaseKey: process.env.NUXT_SUPABASE_KEY
     }
+  },
+  // Configurar prerenderizado para evitar errores durante la generación estática
+  nitro: {
+    prerender: {
+      // Solo prerenderizar la página de inicio
+      routes: ['/'],
+      // Ignorar los errores de prerenderizado para permitir que la compilación continúe
+      ignore: [
+        // Ignorar rutas problemáticas
+        '/acceso-codigo',
+        '/supabase-test',
+        '/crear-actividad',
+        '/escanear-pedido',
+        '/colaborador/admin/**',
+        '/admin/**'
+      ]
+    }
+  },
+  // Configurar modo de generación para SPA en rutas dinámicas
+  routeRules: {
+    '/admin/**': { ssr: false },
+    '/colaborador/**': { ssr: false },
+    '/acceso-codigo': { ssr: false },
+    '/crear-actividad': { ssr: false },
+    '/escanear-pedido': { ssr: false },
+    '/supabase-test': { ssr: false }
   }
 })
