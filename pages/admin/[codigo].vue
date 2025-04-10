@@ -491,7 +491,7 @@ import CollaboratorsList from '~/components/Admin/CollaboratorsList.vue'
 import CollaboratorForm from '~/components/Admin/CollaboratorForm.vue'
 import ShareQR from '~/components/QR/ShareQR.vue'
 import PedidosList from '~/components/Admin/PedidosList.vue'
-
+import { formatDate as formatDateUtil, fromUTC } from '~/utils/date'
 const route = useRoute();
 const supabase = useSupabaseClient();
 
@@ -600,16 +600,9 @@ async function cargarEstadisticas(actividadId: string) {
 // Formatear fecha
 function formatDate(dateString: string) {
   if (!dateString) return 'No especificada';
-  
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date);
+  return formatDateUtil(fromUTC(dateString));
 }
+
 
 // Descargar código QR
 function downloadQR() {
