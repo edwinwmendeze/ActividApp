@@ -35,7 +35,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import { useSupabaseClient } from '#imports';
+import { useSupabaseClient } from '@nuxtjs/supabase/dist/runtime/composables/useSupabaseClient';
 
 // Props
 const props = defineProps({

@@ -42,7 +42,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
-import { useSupabaseClient } from '#imports';
+import { useSupabaseClient } from '@nuxtjs/supabase/dist/runtime/composables/useSupabaseClient';
 import BaseChart from './BaseChart.vue';
 import { format, startOfWeek, startOfMonth, parseISO, isAfter, isBefore, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';

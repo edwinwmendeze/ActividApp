@@ -173,7 +173,8 @@
 
 <script setup>
 import { ref, onMounted, computed, reactive } from 'vue';
-import { useSupabaseClient, useRouter } from '#imports';
+import { useRouter } from '#imports';
+import { useSupabaseClient } from '@nuxtjs/supabase/dist/runtime/composables/useSupabaseClient';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import ProductosMasVendidos from '~/components/Reportes/ProductosMasVendidos.vue';

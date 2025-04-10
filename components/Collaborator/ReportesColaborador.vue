@@ -245,7 +245,7 @@
 
 <script setup>
 import { ref, onMounted, computed, watch } from 'vue';
-import { useSupabaseClient } from '#imports';
+import { useSupabaseClient } from '@nuxtjs/supabase/dist/runtime/composables/useSupabaseClient';
 import ProductosMasVendidos from '~/components/Reportes/ProductosMasVendidos.vue';
 import { format, startOfWeek, startOfMonth, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
