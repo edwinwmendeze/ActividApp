@@ -1,5 +1,4 @@
 <!-- pages/venta/[codigo].vue -->
-<!-- pages/venta/[codigo].vue -->
 <template>
   <div class="venta-page">
     <!-- Loader mientras se carga la información -->
@@ -437,16 +436,6 @@ function formatTipo(tipo: string): string {
   return tipos[tipo as keyof typeof tipos] || tipo
 }
 
-function formatTipo(tipo: string): string {
-  const tipos = {
-    'plato': 'Platos',
-    'bebida': 'Bebidas',
-    'postre': 'Postres',
-    'otro': 'Otros'
-  }
-  
-  return tipos[tipo as keyof typeof tipos] || tipo
-}
 
 function getPedidoCantidad(productoId: string): number {
   return pedido.value[productoId] || 0
