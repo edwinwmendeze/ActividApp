@@ -449,7 +449,12 @@
         <div v-else-if="activeTab === 'pedidos'" class="tab-content">
           <div class="tab-header">
             <h2>Gestión de Pedidos</h2>
-            <button class="action-button">Nuevo Pedido</button>
+            <div class="tab-actions">
+              <NuxtLink :to="`/escanear-pedido?returnTo=/admin/${route.params.codigo}`" class="qr-scanner-button">
+                <span class="icon">📷</span> Escanear QR de pedido
+              </NuxtLink>
+              <button class="action-button">Nuevo Pedido</button>
+            </div>
           </div>
           
           <p class="placeholder-message">Aquí podrás gestionar los pedidos de tu actividad</p>
@@ -1886,5 +1891,34 @@ const eliminarColaborador = async () => {
   .form-actions {
     padding-bottom: 20px;
   }
+}
+
+.tab-actions {
+  display: flex;
+  gap: var(--spacing-small);
+  align-items: center;
+}
+
+.qr-scanner-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: var(--border-radius-small);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.qr-scanner-button:hover {
+  background-color: var(--button-bg-hover);
+}
+
+.qr-scanner-button .icon {
+  font-size: 1.2rem;
 }
 </style>

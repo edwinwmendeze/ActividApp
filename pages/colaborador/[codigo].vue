@@ -114,6 +114,11 @@
         
         <!-- Tab: Pedidos -->
         <div v-else-if="activeTab === 'pedidos'" class="tab-content">
+          <div class="qr-scanner-actions">
+            <NuxtLink :to="`/escanear-pedido?returnTo=/colaborador/${route.params.codigo}`" class="qr-scanner-button">
+              <span class="icon">📷</span> Escanear QR de pedido
+            </NuxtLink>
+          </div>
           <PedidosList 
             ref="pedidosListRef" 
             :colaborador-id="colaborador.id" 
@@ -678,6 +683,35 @@ watch(() => route.hash, (newHash) => {
 @keyframes slideIn {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
+}
+
+.qr-scanner-actions {
+  margin-bottom: var(--spacing-medium);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.qr-scanner-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: var(--border-radius-small);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background-color 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.qr-scanner-button:hover {
+  background-color: var(--button-bg-hover);
+}
+
+.qr-scanner-button .icon {
+  font-size: 1.2rem;
 }
 
 @media (max-width: 768px) {
