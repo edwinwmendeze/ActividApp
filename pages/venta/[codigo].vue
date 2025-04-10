@@ -307,6 +307,7 @@ import { ref, computed, onMounted } from 'vue'
 import QRCode from 'qrcode'
 import type { Ref } from 'vue'
 import type { Colaborador, Actividad, Producto } from '~/types'
+import { formatDate as formatDateUtil, fromUTC } from '~/utils/date'
 
 // Obtener código de venta de la URL
 const route = useRoute()
@@ -417,17 +418,23 @@ const horasDisponibles = computed(() => {
 })
 
 // Funciones
+// Formatear fecha centralizado desde utils/date.js
 function formatDate(dateString: string): string {
   if (!dateString) return 'No especificada'
   
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date)
+  const date = fromUTC(dateString)
+  return formatDateUtil(date)
+}
+
+function formatTipo(tipo: string): string {
+  const tipos = {
+    'plato': 'Platos',
+    'bebida': 'Bebidas',
+    'postre': 'Postres',
+    'otro': 'Otros'
+  }
+  
+  return tipos[tipo as keyof typeof tipos] || tipo
 }
 
 function formatTipo(tipo: string): string {

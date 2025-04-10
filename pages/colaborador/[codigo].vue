@@ -138,6 +138,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import PedidosList from '@/components/Collaborator/PedidosList.vue'
+import { formatDate as formatDateUtil, fromUTC } from '~/utils/date'
 
 // Obtener código de acceso de la URL
 const route = useRoute()
@@ -214,14 +215,8 @@ const formatRole = (role) => {
 const formatDate = (dateString) => {
   if (!dateString) return 'No especificada'
   
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date)
+  const date = fromUTC(dateString)
+  return formatDateUtil(date)
 }
 
 // Cargar información del colaborador

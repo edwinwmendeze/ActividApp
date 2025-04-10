@@ -185,6 +185,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
+import { formatDate as formatDateUtil, fromUTC } from '~/utils/date'
 
 // Definir props
 const props = defineProps({
@@ -430,27 +431,17 @@ function formatEstado(estado) {
 function formatDate(dateString) {
   if (!dateString) return 'Fecha no disponible'
   
-  const date = new Date(dateString)
-  return date.toLocaleDateString('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric'
-  })
+  const date = fromUTC(dateString)
+  return formatDateUtil(date)
 }
 
+// Formatear hora centralizado desde utils/date.js
 // Formatear hora
 function formatTime(timeString) {
   if (!timeString) return 'Hora no disponible'
   
-  if (timeString.includes('T')) {
-    const date = new Date(timeString)
-    return date.toLocaleTimeString('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-  
-  return timeString
+  const date = fromUTC(timeString)
+  return formatDateUtil(date)
 }
 
 // Obtener clase de estado

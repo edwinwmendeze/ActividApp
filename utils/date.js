@@ -38,7 +38,7 @@ export function formatDate(date, options = {}) {
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-    hour12: false // Cambio a formato 24 horas
+    hour12: true
   };
   
   const mergedOptions = { ...defaultOptions, ...options };
