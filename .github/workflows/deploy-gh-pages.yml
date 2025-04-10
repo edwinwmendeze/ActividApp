@@ -1,0 +1,40 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main  # O 'master' según la rama principal que utilices
+  workflow_dispatch:  # Permite ejecutar el workflow manualmente desde la interfaz de GitHub
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Usar la versión de Node que prefieras
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+        env:
+          NUXT_APP_BASE_URL: '/ActividApp/'
+
+      - name: Configure custom domain (optional)
+        # Descomenta esta línea si quieres configurar un dominio personalizado
+        # run: echo "tudominio.com" > dist/CNAME
+
+      - name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist # La carpeta donde se genera el build (importante verificar esta ruta)
+          branch: gh-pages # La rama donde se desplegará el sitio
+          clean: true # Limpiar la rama de despliegue antes de subir nuevos archivos
