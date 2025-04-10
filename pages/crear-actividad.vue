@@ -182,6 +182,7 @@
 
 <script setup>
 import QRCode from 'qrcode'
+import { toUTC, fromUTC, formatDate as formatDateUtil } from '~/utils/date'
 
 // Cliente de Supabase
 const supabase = useSupabaseClient()
@@ -308,12 +309,16 @@ async function crearActividad() {
     // Generar QR
     const codigoQR = await generateQR(actividadUrl);
     
-    // Datos para insertar
+    // Convertir fechas a UTC antes de guardar en la base de datos
+    const fechaInicioUTC = toUTC(formData.value.fecha_inicio);
+    const fechaFinUTC = toUTC(formData.value.fecha_fin);
+    
+    // Datos para insertar (con fechas convertidas a formato ISO)
     const actividadInsert = {
       nombre: formData.value.nombre,
       descripcion: formData.value.descripcion || '',
-      fecha_inicio: formData.value.fecha_inicio,
-      fecha_fin: formData.value.fecha_fin,
+      fecha_inicio: fechaInicioUTC, // toUTC ya devuelve en formato ISO
+      fecha_fin: fechaFinUTC,       // toUTC ya devuelve en formato ISO
       ubicacion: formData.value.ubicacion || '',
       organizador_nombre: formData.value.organizador_nombre,
       organizador_telefono: formData.value.organizador_telefono || '',
@@ -374,14 +379,8 @@ function downloadQR() {
 function formatDate(dateString) {
   if (!dateString) return '';
   
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date);
+  const date = fromUTC(dateString);
+  return formatDateUtil(date);
 }
 </script>
 

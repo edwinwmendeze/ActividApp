@@ -276,9 +276,9 @@
                 
                 <div class="form-row">
                   <div class="form-group">
-                    <label for="precio">Precio (USD) *</label>
+                    <label for="precio">Precio (PEN) *</label>
                     <div class="input-prefix">
-                      <span class="prefix">S/ </span>
+                      <span class="prefix">S/</span>
                       <input 
                         id="precio"
                         v-model.number="productoForm.precio"
