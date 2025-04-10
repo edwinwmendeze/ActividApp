@@ -51,6 +51,15 @@
             <h3>Comparte tu enlace de venta</h3>
             <p>Comparte este QR o enlace con clientes potenciales para que puedan realizar pedidos a través de ti.</p>
             
+            <!-- Nueva sección para pedidos -->
+            <div class="pedidos-section">
+              <h3>Mis Pedidos</h3>
+              <CollaboratorPedidosList 
+                :colaborador-id="colaborador.id"
+                @view-details="mostrarDetallesPedido"
+              />
+            </div>
+            
             <div class="qr-container">
               <img :src="colaborador.codigo_venta_qr" alt="Código QR de venta" class="qr-image" />
               <div class="qr-actions">

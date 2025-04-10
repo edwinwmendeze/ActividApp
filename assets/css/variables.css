@@ -28,3 +28,42 @@
     --spacing-medium: 16px;
     --spacing-large: 32px;
   }
+
+  /* assets/css/variables.css */
+:root {
+  /* Colores */
+  --primary-color: #4CAF50;
+  --secondary-color: #6c757d;
+  --text-color: #495057;
+  --text-color-dark: #343a40;
+  --text-color-light: #adb5bd;
+  --border-color: #ced4da;
+  --background-color: #f8f9fa;
+  
+  /* Espaciado */
+  --spacing-xsmall: 0.25rem;
+  --spacing-small: 0.5rem;
+  --spacing-medium: 1rem;
+  --spacing-large: 1.5rem;
+  --spacing-xlarge: 3rem;
+  
+  /* Bordes y radio */
+  --border-radius-small: 0.25rem;
+  --border-radius: 0.5rem;
+  
+  /* Tipografía */
+  --font-size-small: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-large: 1.25rem;
+  
+  /* Botones */
+  --button-bg: #4CAF50;
+  --button-bg-hover: #45a049;
+  
+  /* Transiciones */
+  --transition-speed: 0.2s;
+  
+  /* Sombras */
+  --card-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --card-shadow-hover: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
