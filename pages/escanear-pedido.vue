@@ -9,50 +9,62 @@
     </div>
     
     <div class="scan-content">
-      <!-- Paso 1: Escanear QR -->
-      <div v-if="step === 'scan'" class="scan-step">
-        <QRScannerComponent @code-scanned="handleCodeScanned" />
-        
-        <div class="scan-instructions">
-          <h3>Instrucciones</h3>
-          <ol>
-            <li>Haz clic en "Iniciar Cámara" para activar el escáner</li>
-            <li>Apunta la cámara al código QR del pedido</li>
-            <li>El código se detectará automáticamente</li>
-          </ol>
-          <p class="instruction-note">Asegúrate de tener buena iluminación y que el código esté completamente visible en la pantalla.</p>
-        </div>
-        
-        <!-- Opción para ingresar código manualmente -->
-        <div class="manual-entry">
-          <h3>¿Problemas con el escáner?</h3>
-          <p>También puedes ingresar el código manualmente:</p>
-          <div class="manual-input">
-            <input 
-              v-model="manualCode" 
-              type="text" 
-              placeholder="Ingresa el código del pedido"
-              maxlength="8"
-            >
-            <button 
-              @click="processManualCode" 
-              class="action-button primary"
-              :disabled="!manualCode.trim()"
-            >
-              Buscar
-            </button>
-          </div>
-        </div>
+      <!-- Mensaje de acceso no autorizado -->
+      <div v-if="!isAuthorized" class="unauthorized-message">
+        <h2>Acceso no autorizado</h2>
+        <p>Solo los administradores y colaboradores pueden escanear pedidos.</p>
+        <button @click="goBack" class="action-button primary">
+          Volver
+        </button>
       </div>
       
-      <!-- Paso 2: Mostrar detalles del pedido -->
-      <div v-else-if="step === 'details'" class="details-step">
-        <PedidoScanDetails 
-          :codigo-pedido="scannedCode" 
-          @close="resetScan"
-          @updated="handlePedidoUpdated"
-        />
-      </div>
+      <!-- Contenido principal solo disponible para usuarios autorizados -->
+      <template v-else>
+        <!-- Paso 1: Escanear QR -->
+        <div v-if="step === 'scan'" class="scan-step">
+          <QRScannerComponent @code-scanned="handleCodeScanned" />
+          
+          <div class="scan-instructions">
+            <h3>Instrucciones</h3>
+            <ol>
+              <li>Haz clic en "Iniciar Cámara" para activar el escáner</li>
+              <li>Apunta la cámara al código QR del pedido</li>
+              <li>El código se detectará automáticamente</li>
+            </ol>
+            <p class="instruction-note">Asegúrate de tener buena iluminación y que el código esté completamente visible en la pantalla.</p>
+          </div>
+          
+          <!-- Opción para ingresar código manualmente -->
+          <div class="manual-entry">
+            <h3>¿Problemas con el escáner?</h3>
+            <p>También puedes ingresar el código manualmente:</p>
+            <div class="manual-input">
+              <input 
+                v-model="manualCode" 
+                type="text" 
+                placeholder="Ingresa el código del pedido"
+                maxlength="8"
+              >
+              <button 
+                @click="processManualCode" 
+                class="action-button primary"
+                :disabled="!manualCode.trim()"
+              >
+                Buscar
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Paso 2: Mostrar detalles del pedido -->
+        <div v-else-if="step === 'details'" class="details-step">
+          <PedidoScanDetails 
+            :codigo-pedido="scannedCode" 
+            @close="resetScan"
+            @updated="handlePedidoUpdated"
+          />
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -70,6 +82,7 @@ const step = ref('scan')
 const scannedCode = ref('')
 const manualCode = ref('')
 const returnPath = ref('')
+const isAuthorized = ref(false) // Agregar esta variable para controlar el acceso
 
 // Manejar código escaneado
 const handleCodeScanned = (code) => {
@@ -134,6 +147,31 @@ onMounted(() => {
   // Verificar si hay una ruta de retorno en la query
   if (route.query.returnTo) {
     returnPath.value = route.query.returnTo
+    
+    // Verificar si el usuario está autorizado basado en la ruta de origen
+    const returnPathValue = returnPath.value.toString()
+    
+    // Solo autorizar si viene de una página de admin o colaborador con su código
+    if (
+      returnPathValue.startsWith('/admin/') || 
+      returnPathValue.startsWith('/colaborador/')
+    ) {
+      // Verificar que el código tenga un formato válido (al menos 5 caracteres alfanuméricos)
+      const code = returnPathValue.split('/').pop()
+      if (code && code.length >= 5) {
+        isAuthorized.value = true
+      } else {
+        console.error('Código de acceso inválido')
+        isAuthorized.value = false
+      }
+    } else {
+      console.error('Ruta de origen no autorizada')
+      isAuthorized.value = false
+    }
+  } else {
+    // Si no hay ruta de retorno, no está autorizado
+    console.error('No hay ruta de retorno especificada')
+    isAuthorized.value = false
   }
 })
 </script>
@@ -268,6 +306,15 @@ onMounted(() => {
 .action-button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+.unauthorized-message {
+  background-color: white;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-medium);
+  margin-top: var(--spacing-large);
+  box-shadow: var(--card-shadow);
+  text-align: center;
 }
 
 @media (max-width: 768px) {
