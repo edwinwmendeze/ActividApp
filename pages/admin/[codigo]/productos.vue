@@ -1,3 +1,4 @@
+<!-- pages/admin/[codigo]/productos.vue -->
 <template>
     <div class="productos-management">
       <div class="tab-header">
