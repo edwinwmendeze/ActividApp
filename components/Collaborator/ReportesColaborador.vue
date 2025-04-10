@@ -243,7 +243,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted, computed, watch } from 'vue';
 import { useSupabaseClient } from '#imports';
 import ProductosMasVendidos from '~/components/Reportes/ProductosMasVendidos.vue';
