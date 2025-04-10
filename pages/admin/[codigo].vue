@@ -454,7 +454,10 @@
           
           <p class="placeholder-message">Aquí podrás gestionar los pedidos de tu actividad</p>
           
-          <!-- Implementación futura: lista de pedidos -->
+          <PedidosList
+    ref="pedidosListRef"
+    :actividad-id="actividad.id"
+  />
         </div>
         
         <!-- Tab: Configuración -->
@@ -482,6 +485,8 @@ import type {
 import CollaboratorsList from '~/components/Admin/CollaboratorsList.vue'
 import CollaboratorForm from '~/components/Admin/CollaboratorForm.vue'
 import ShareQR from '~/components/QR/ShareQR.vue'
+import PedidosList from '~/components/Admin/PedidosList.vue'
+
 const route = useRoute();
 const supabase = useSupabaseClient();
 
@@ -490,6 +495,9 @@ const loading = ref(true);
 const error = ref('');
 
 const actividad = ref<Partial<Actividad>>({});
+
+// Referencias para PedidosList
+const pedidosListRef = ref(null);
 
 const activeTab = ref('dashboard');
 const estadisticas = ref<DashboardStats>({
