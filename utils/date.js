@@ -38,7 +38,7 @@ export function formatDate(date, options = {}) {
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-    hour12: true // Cambio a formato 12 horas (AM/PM)
+    hour12: false // Cambio a formato 24 horas
   };
   
   const mergedOptions = { ...defaultOptions, ...options };
@@ -58,7 +58,26 @@ export function formatShortDate(date) {
     month: '2-digit',
     year: 'numeric',
     hour: undefined,
-    minute: undefined
+    minute: undefined,
+    hour12: true
+  });
+}
+
+/**
+ * Formatea una fecha mostrando solo la hora (sin fecha)
+ * @param {Date|string} date - Fecha a formatear
+ * @returns {string} - Hora formateada (formato 12 horas)
+ */
+export function formatTimeOnly(date) {
+  if (!date) return '';
+  
+  return formatDate(date, {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    day: undefined,
+    month: undefined,
+    year: undefined
   });
 }
 

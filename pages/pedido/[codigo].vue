@@ -109,6 +109,7 @@
   
   <script setup lang="ts">
   import { ref, computed, onMounted } from 'vue'
+  import { formatDate as formatDateUtil, fromUTC, formatTimeOnly } from '~/utils/date'
   
   // Obtener código de pedido de la URL
   const route = useRoute()
@@ -132,25 +133,12 @@
   // Funciones
   function formatDate(dateString: string): string {
     if (!dateString) return 'No especificada'
-    
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat('es-ES', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date)
+    return formatDateUtil(fromUTC(dateString))
   }
   
   function formatHora(dateString: string): string {
     if (!dateString) return 'No especificada'
-    
-    const date = new Date(dateString)
-    return new Intl.DateTimeFormat('es-ES', {
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(date)
+    return formatTimeOnly(fromUTC(dateString))
   }
   
   function formatEstado(estado: string): string {
