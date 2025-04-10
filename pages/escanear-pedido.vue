@@ -60,6 +60,7 @@
         <div v-else-if="step === 'details'" class="details-step">
           <PedidoScanDetails 
             :codigo-pedido="scannedCode" 
+            :actividad-codigo="actividadCode"
             @close="resetScan"
             @updated="handlePedidoUpdated"
           />
@@ -73,16 +74,19 @@
 import { ref, onMounted } from 'vue'
 import QRScannerComponent from '~/components/QR/QRScannerComponent.vue'
 import PedidoScanDetails from '~/components/QR/PedidoScanDetails.vue'
-
-const router = useRouter()
-const route = useRoute()
+import { useRouter, useRoute } from 'vue-router'
 
 // Estado
 const step = ref('scan')
 const scannedCode = ref('')
 const manualCode = ref('')
 const returnPath = ref('')
-const isAuthorized = ref(false) // Agregar esta variable para controlar el acceso
+const isAuthorized = ref(false) 
+const actividadCode = ref('') // Guardar el código de actividad del colaborador
+
+const supabase = useSupabaseClient()
+const router = useRouter()
+const route = useRoute()
 
 // Manejar código escaneado
 const handleCodeScanned = (code) => {
@@ -143,7 +147,7 @@ const handlePedidoUpdated = (pedidoData) => {
   // En cualquier otro caso, permanece en la pantalla de detalles
 }
 
-onMounted(() => {
+onMounted(async () => {
   // Verificar si hay una ruta de retorno en la query
   if (route.query.returnTo) {
     returnPath.value = route.query.returnTo
@@ -160,6 +164,34 @@ onMounted(() => {
       const code = returnPathValue.split('/').pop()
       if (code && code.length >= 5) {
         isAuthorized.value = true
+        
+        // Guardar el código para verificación posterior
+        actividadCode.value = code
+        
+        console.log('Código de actividad detectado:', code)
+        
+        // Verificar en la base de datos
+        try {
+          const { data, error } = await supabase
+            .from('actividades')
+            .select('codigo_acceso')
+            .eq('codigo_acceso', code)
+            .single()
+            
+          if (error) {
+            console.error('Error al verificar código de actividad:', error)
+          }
+          
+          if (data) {
+            console.log('Actividad verificada:', data)
+            // Código correcto
+          } else {
+            console.error('Código de actividad no encontrado')
+            // No invalidamos por si hay problemas de base de datos
+          }
+        } catch (err) {
+          console.error('Error al verificar código:', err)
+        }
       } else {
         console.error('Código de acceso inválido')
         isAuthorized.value = false

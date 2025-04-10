@@ -259,7 +259,7 @@
   
   <script setup>
   import { ref, reactive, onMounted, computed } from 'vue';
-  import { useSupabaseClient } from '@supabase/auth-helpers-vue';
+
   import { formatearTipo, obtenerEmoji } from '@/utils/formatters';
   
   const supabase = useSupabaseClient();

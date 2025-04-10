@@ -1,25 +1,59 @@
 <!-- components/QR/PedidoScanDetails.vue -->
 <template>
   <div class="pedido-scan-details">
-    <div v-if="loading" class="loading-container">
+    <!-- Mensaje de error si no hay pedido o hubo un problema -->
+    <div v-if="error" class="error-container">
+      <div class="error-card">
+        <div v-if="Object.keys(actividadInfo).length > 0" class="actividad-error">
+          <div class="error-header">
+            <i class="fas fa-exclamation-circle"></i>
+            <h3>Error al cargar el pedido</h3>
+          </div>
+          
+          <div class="error-content">
+            <p>Este pedido <strong>no puede ser escaneado aquí</strong> porque pertenece a otra actividad.</p>
+            
+            <div class="actividad-info">
+              <h4>Detalles de la Actividad:</h4>
+              <p class="actividad-nombre">{{ actividadInfo.nombre }}</p>
+              <p><strong>Fecha:</strong> {{ actividadInfo.fechaInicio }} - {{ actividadInfo.fechaFin }}</p>
+              <p v-if="actividadInfo.ubicacion"><strong>Ubicación:</strong> {{ actividadInfo.ubicacion }}</p>
+            </div>
+            
+            <div class="contacto-info">
+              <h4>Para más información:</h4>
+              <p><strong>Organizador:</strong> {{ actividadInfo.organizador }}</p>
+              <p v-if="actividadInfo.email"><strong>Email:</strong> {{ actividadInfo.email }}</p>
+              <p v-if="actividadInfo.telefono"><strong>Teléfono:</strong> {{ actividadInfo.telefono }}</p>
+            </div>
+          </div>
+          
+          <button @click="$emit('close')" class="action-button primary">
+            Volver al escáner
+          </button>
+        </div>
+        <div v-else class="simple-error">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h3>Error al cargar el pedido</h3>
+          <p>{{ error }}</p>
+          <button @click="$emit('close')" class="action-button primary">
+            Volver al escáner
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div v-else-if="loading" class="loading-container">
       <div class="loader"></div>
       <p>Cargando detalles del pedido...</p>
     </div>
     
-    <div v-else-if="error" class="error-container">
-      <div class="error-icon">❌</div>
-      <h3>Error al cargar el pedido</h3>
-      <p>{{ error }}</p>
-      <button @click="$emit('close')" class="action-button secondary">
-        Volver al escáner
-      </button>
-    </div>
-    
-    <div v-else-if="!pedido.id" class="empty-state">
+    <div v-else-if="!pedido.id || !actividadVerificada" class="empty-state">
       <div class="empty-icon">🔍</div>
-      <h3>Pedido no encontrado</h3>
-      <p>No se encontró ningún pedido con ese código.</p>
-      <button @click="$emit('close')" class="action-button secondary">
+      <h3>Pedido no encontrado o no autorizado</h3>
+      <p v-if="!actividadVerificada">No tienes permiso para ver este pedido. Pertenece a otra actividad.</p>
+      <p v-else>No se encontró ningún pedido con ese código.</p>
+      <button @click="$emit('close')" class="action-button primary">
         Volver al escáner
       </button>
     </div>
@@ -122,7 +156,7 @@
           
           <div class="payment-toggle">
             <label class="toggle-container">
-              <input type="checkbox" v-model="pedidoPagado" :disabled="actualizando">
+              <input type="checkbox" v-model="pagado" :disabled="actualizando">
               <span class="toggle-slider"></span>
               <span class="toggle-label">Pedido pagado</span>
             </label>
@@ -131,7 +165,7 @@
           <button 
             @click="actualizarEstado" 
             class="action-button primary update-button" 
-            :disabled="actualizando || selectedEstado === pedido.estado && pedidoPagado === pedido.pagado"
+            :disabled="actualizando || selectedEstado === pedido.estado && pagado === pedido.pagado"
           >
             <span v-if="actualizando">Actualizando...</span>
             <span v-else>Actualizar estado</span>
@@ -140,7 +174,7 @@
         
         <!-- Acciones -->
         <div class="acciones-section">
-          <button @click="$emit('close')" class="action-button secondary">
+          <button @click="$emit('close')" class="action-button primary">
             Volver al escáner
           </button>
         </div>
@@ -150,8 +184,9 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 
+// Definir props
 const props = defineProps({
   codigoPedido: {
     type: String,
@@ -162,6 +197,10 @@ const props = defineProps({
     default() {
       return {}
     }
+  },
+  actividadCodigo: {
+    type: String,
+    default: ''
   }
 })
 
@@ -177,7 +216,9 @@ const pedido = ref({})
 const items = ref([])
 const actualizando = ref(false)
 const selectedEstado = ref('')
-const pedidoPagado = ref(false)
+const pagado = ref(false)
+const actividadVerificada = ref(true)
+const actividadInfo = ref({})
 
 // Opciones de estado
 const estadoOptions = [
@@ -190,42 +231,130 @@ const estadoOptions = [
 ]
 
 // Cargar datos del pedido
-const loadPedido = async () => {
+async function loadPedido() {
   loading.value = true
   error.value = ''
+  actividadVerificada.value = true // Reiniciar la verificación
   
   try {
-    const { data, error: err } = await supabase
+    console.log('Intentando cargar pedido con código:', props.codigoPedido)
+    console.log('Código de actividad del colaborador/admin:', props.actividadCodigo)
+    
+    // Obtener pedido por código
+    const { data: pedidoData, error: pedidoError } = await supabase
       .from('pedidos')
-      .select('*')
+      .select(`
+        *,
+        actividad_id,
+        actividades:actividad_id (id, nombre, codigo_acceso)
+      `)
       .eq('codigo_pedido', props.codigoPedido)
       .single()
     
-    if (err) throw err
+    if (pedidoError) throw pedidoError
     
-    if (!data) {
-      error.value = 'No se encontró el pedido.'
+    console.log('Datos del pedido obtenidos:', pedidoData)
+    
+    if (!pedidoData) {
+      error.value = 'No se encontró ningún pedido con ese código'
       loading.value = false
       return
     }
     
-    pedido.value = data
-    selectedEstado.value = data.estado
-    pedidoPagado.value = data.pagado
+    // Verificar si el pedido pertenece a la actividad del colaborador/administrador
+    if (props.actividadCodigo && 
+        pedidoData.actividades && 
+        pedidoData.actividades.codigo_acceso && 
+        pedidoData.actividades.codigo_acceso !== props.actividadCodigo) {
+      
+      console.log('Comparación de códigos:', {
+        'Código de actividad del colaborador/admin': props.actividadCodigo,
+        'Código de actividad del pedido': pedidoData.actividades ? pedidoData.actividades.codigo_acceso : 'No disponible',
+        'Datos completos del pedido': pedidoData
+      })
+      
+      console.error('El pedido no pertenece a la actividad del colaborador/administrador')
+      actividadVerificada.value = false
+      
+      // Obtener más detalles sobre la actividad del pedido
+      try {
+        const { data: actividadData, error: actividadError } = await supabase
+          .from('actividades')
+          .select(`
+            nombre,
+            descripcion,
+            fecha_inicio,
+            fecha_fin,
+            ubicacion,
+            organizador_nombre,
+            organizador_telefono,
+            organizador_email
+          `)
+          .eq('id', pedidoData.actividad_id)
+          .single()
+          
+        if (!actividadError && actividadData) {
+          // Formatear fechas
+          const fechaInicio = new Date(actividadData.fecha_inicio).toLocaleString('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+          
+          const fechaFin = new Date(actividadData.fecha_fin).toLocaleString('es-ES', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+          
+          // Crear mensaje informativo estructurado sin usar HTML directamente
+          error.value = 'No tienes permiso para ver este pedido. Pertenece a otra actividad.'
+            
+          // Guardar los datos de la actividad para mostrarlos en la interfaz
+          actividadInfo.value = {
+            nombre: actividadData.nombre,
+            fechaInicio,
+            fechaFin,
+            ubicacion: actividadData.ubicacion,
+            organizador: actividadData.organizador_nombre,
+            telefono: actividadData.organizador_telefono,
+            email: actividadData.organizador_email
+          }
+        } else {
+          // Mensaje por defecto si no podemos obtener los detalles
+          error.value = 'No tienes permiso para ver este pedido. Pertenece a otra actividad.'
+        }
+      } catch (err) {
+        console.error('Error al obtener detalles de la actividad:', err)
+        error.value = 'No tienes permiso para ver este pedido. Pertenece a otra actividad.'
+      }
+      
+      loading.value = false
+      return
+    }
     
-    // Cargar items
-    await loadPedidoItems(data.id)
+    pedido.value = pedidoData
+    selectedEstado.value = pedidoData.estado || 'pendiente'
+    pagado.value = pedidoData.pagado || false
     
+    // Cargar los items del pedido
+    if (pedidoData.id) {
+      loadPedidoItems(pedidoData.id)
+    }
   } catch (err) {
-    console.error('Error al cargar el pedido:', err)
-    error.value = err.message
+    console.error('Error al cargar pedido:', err)
+    error.value = 'Error al cargar los detalles del pedido'
   } finally {
     loading.value = false
   }
 }
 
 // Cargar items del pedido
-const loadPedidoItems = async (pedidoId) => {
+async function loadPedidoItems(pedidoId) {
   loadingItems.value = true
   
   try {
@@ -243,7 +372,6 @@ const loadPedidoItems = async (pedidoId) => {
     
     if (err) throw err
     
-    // Formatear los datos para mostrarlos
     items.value = data.map(item => ({
       id: item.id,
       cantidad: item.cantidad,
@@ -261,7 +389,7 @@ const loadPedidoItems = async (pedidoId) => {
 }
 
 // Actualizar estado del pedido
-const actualizarEstado = async () => {
+async function actualizarEstado() {
   actualizando.value = true
   error.value = ''
   
@@ -270,20 +398,18 @@ const actualizarEstado = async () => {
       .from('pedidos')
       .update({
         estado: selectedEstado.value,
-        pagado: pedidoPagado.value
+        pagado: pagado.value
       })
       .eq('id', pedido.value.id)
     
     if (err) throw err
     
-    // Recargar el pedido para mostrar datos actualizados
     await loadPedido()
     
-    // Notificar que se ha actualizado
     emit('updated', {
       id: pedido.value.id,
       estado: selectedEstado.value,
-      pagado: pedidoPagado.value
+      pagado: pagado.value
     })
     
   } catch (err) {
@@ -295,13 +421,13 @@ const actualizarEstado = async () => {
 }
 
 // Formatear estado para mostrar
-const formatEstado = (estado) => {
+function formatEstado(estado) {
   const option = estadoOptions.find(opt => opt.value === estado)
   return option ? option.label : estado
 }
 
 // Formatear fecha
-const formatDate = (dateString) => {
+function formatDate(dateString) {
   if (!dateString) return 'Fecha no disponible'
   
   const date = new Date(dateString)
@@ -313,10 +439,9 @@ const formatDate = (dateString) => {
 }
 
 // Formatear hora
-const formatTime = (timeString) => {
+function formatTime(timeString) {
   if (!timeString) return 'Hora no disponible'
   
-  // Si es una fecha ISO, extraer solo la parte de la hora
   if (timeString.includes('T')) {
     const date = new Date(timeString)
     return date.toLocaleTimeString('es-ES', {
@@ -325,14 +450,18 @@ const formatTime = (timeString) => {
     })
   }
   
-  // Si ya es un string de hora, devolverlo directamente
   return timeString
 }
 
 // Obtener clase de estado
-const getEstadoClass = (estado) => {
+function getEstadoClass(estado) {
   return `estado-${estado}`
 }
+
+// Comprobar si el mensaje de error es HTML
+const isHtmlError = computed(() => {
+  return error.value && error.value.includes('<') && error.value.includes('>')
+})
 
 // Cargar pedido al iniciar
 onMounted(() => {
@@ -341,46 +470,195 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* Estilos base */
 .pedido-scan-details {
-  min-height: 100%;
-  max-width: 600px;
+  width: 100%;
+  max-width: 800px;
   margin: 0 auto;
-  padding: var(--spacing-medium);
-  font-family: var(--font-family);
+  padding: 20px;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
 }
 
-.loading-container, .error-container, .empty-state {
+/* Contenedor de detalles */
+.pedido-details-container {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+}
+
+/* Tarjeta de error estilizada */
+.error-card {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background-color: white;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+}
+
+/* Estilos para el error de actividad incorrecto */
+.actividad-error {
+  padding: 0;
+}
+
+.error-header {
+  background: linear-gradient(135deg, #ff5a5f, #ff3c41);
+  color: white;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.error-header h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.error-header i {
+  font-size: 1.8rem;
+}
+
+.error-content {
+  padding: 20px;
+  color: #333;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.error-content :deep(br) {
+  margin-bottom: 8px;
+  display: block;
+  content: "";
+}
+
+/* Estilos para los bloques de información */
+.error-content :deep(strong) {
+  font-weight: bold;
+  color: #333;
+}
+
+/* Estilos para el contenido de error mejorado */
+.error-content :deep(.actividad-info), 
+.error-content :deep(.contacto-info) {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+}
+
+.error-content :deep(.actividad-info h4), 
+.error-content :deep(.contacto-info h4) {
+  margin: 0 0 10px 0;
+  color: #333;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.error-content :deep(.actividad-info p), 
+.error-content :deep(.contacto-info p) {
+  margin: 5px 0;
+  font-size: 0.95rem;
+}
+
+.error-content :deep(.actividad-nombre) {
+  font-size: 1.2rem !important;
+  font-weight: 600;
+  color: #ff5a5f;
+  margin-bottom: 10px !important;
+}
+
+.error-content :deep(.contacto-info) {
+  background-color: #f0f7ff;
+}
+
+/* Estilos para el error simple */
+.simple-error {
+  padding: 30px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.simple-error i {
+  font-size: 3rem;
+  color: #ff5a5f;
+  margin-bottom: 10px;
+}
+
+.simple-error h3 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #333;
+}
+
+.simple-error p {
+  margin: 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+/* Botones */
+.action-button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1rem;
+  margin-top: 20px;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
+
+.primary {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.primary:hover {
+  background-color: #3e8e41;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.secondary {
+  background-color: #f2f2f2;
+  color: #333;
+}
+
+.secondary:hover {
+  background-color: #e5e5e5;
+}
+
+/* Estados de carga y otros */
+.loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-large);
+  padding: 40px 20px;
   text-align: center;
-  gap: var(--spacing-medium);
-  background-color: white;
-  border-radius: var(--border-radius);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .loader {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #4a90e2;
+  border-radius: 50%;
   width: 40px;
   height: 40px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid var(--primary-color);
-  border-radius: 50%;
   animation: spin 1s linear infinite;
-}
-
-.loader.small {
-  width: 24px;
-  height: 24px;
-  border-width: 3px;
-}
-
-.loader.tiny {
-  width: 16px;
-  height: 16px;
-  border-width: 2px;
+  margin-bottom: 15px;
 }
 
 @keyframes spin {
@@ -388,9 +666,12 @@ onMounted(() => {
   100% { transform: rotate(360deg); }
 }
 
-.error-icon, .empty-icon {
-  font-size: 3rem;
-  line-height: 1;
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  padding: 20px;
 }
 
 /* Nuevo diseño tipo tarjeta virtual */
