@@ -44,6 +44,13 @@
           <span class="nav-icon">{{ tab.icon }}</span>
           {{ tab.name }}
         </button>
+        <button 
+          @click="activeTab = 'reportes'"
+          :class="['nav-button', { active: activeTab === 'reportes' }]"
+        >
+          <span class="nav-icon">📊</span>
+          Reportes
+        </button>
       </div>
       
       <!-- Contenido del tab activo -->
@@ -465,6 +472,12 @@
   />
         </div>
         
+        <!-- Tab: Reportes -->
+        <div v-else-if="activeTab === 'reportes'" class="tab-content">
+          <h2>Reportes de la Actividad</h2>
+          <DashboardReportes :actividad-id="actividad.id" />
+        </div>
+        
         <!-- Tab: Configuración -->
         <div v-else-if="activeTab === 'configuracion'" class="tab-content">
           <h2>Configuración de la Actividad</h2>
@@ -491,6 +504,7 @@ import CollaboratorsList from '~/components/Admin/CollaboratorsList.vue'
 import CollaboratorForm from '~/components/Admin/CollaboratorForm.vue'
 import ShareQR from '~/components/QR/ShareQR.vue'
 import PedidosList from '~/components/Admin/PedidosList.vue'
+import DashboardReportes from '~/components/Reportes/DashboardReportes.vue'
 import { formatDate as formatDateUtil, fromUTC } from '~/utils/date'
 const route = useRoute();
 const supabase = useSupabaseClient();
@@ -517,6 +531,7 @@ const tabs = [
   { id: 'productos', name: 'Productos', icon: '🍽️' },
   { id: 'colaboradores', name: 'Colaboradores', icon: '👥' },
   { id: 'pedidos', name: 'Pedidos', icon: '📝' },
+  { id: 'reportes', name: 'Reportes', icon: '📊' },
   { id: 'configuracion', name: 'Configuración', icon: '⚙️' }
 ];
 
@@ -1364,7 +1379,7 @@ const eliminarColaborador = async () => {
 
 .productos-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: var(--spacing-medium);
 }
 
