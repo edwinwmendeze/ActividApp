@@ -68,7 +68,7 @@
               <div class="contact-icon">📱</div>
               <div class="contact-info">
                 <h4>WhatsApp</h4>
-                <p>+57 300 123 4567</p>
+                <p>+51 948924822</p>
               </div>
             </div>
             
@@ -76,7 +76,7 @@
               <div class="contact-icon">🕒</div>
               <div class="contact-info">
                 <h4>Horario de atención</h4>
-                <p>Lunes a viernes: 8:00 AM - 6:00 PM</p>
+                <p>Lunes a viernes: 8:00 AM - 4:00 PM</p>
               </div>
             </div>
           </div>
