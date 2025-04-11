@@ -34,15 +34,5 @@ export default defineNuxtConfig({
       supabaseKey: process.env.NUXT_SUPABASE_KEY
     }
   },
-  
-  // Configuración de generación estática
-  ssr: false, // Desactivar SSR completamente para toda la aplicación
-  
-  // Desactivar el crawler para evitar que intente prerenderizar páginas vinculadas
-  nitro: {
-    prerender: {
-      crawlLinks: false,
-      routes: ['/'] // Prerenderizar solo la página de inicio
-    }
-  }
+
 })
