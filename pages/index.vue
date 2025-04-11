@@ -62,10 +62,6 @@
         </NuxtLink>
       </div>
     </div>
-
-    <footer class="home-footer">
-      <p> 2024 ActividApp - Simplificando la gestión de eventos</p>
-    </footer>
   </div>
 </template>
 
@@ -242,15 +238,6 @@
 .link-icon {
   font-size: 1.2rem;
   margin-right: 0.7rem;
-}
-
-/* Footer */
-.home-footer {
-  margin-top: auto;
-  text-align: center;
-  padding-top: 2rem;
-  color: var(--text-color, #666);
-  font-size: 0.9rem;
 }
 
 /* Responsive adjustments */
