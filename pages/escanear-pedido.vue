@@ -11,11 +11,31 @@
     <div class="scan-content">
       <!-- Mensaje de acceso no autorizado -->
       <div v-if="!isAuthorized" class="unauthorized-message">
-        <h2>Acceso no autorizado</h2>
-        <p>Solo los administradores y colaboradores pueden escanear pedidos.</p>
-        <button @click="goBack" class="action-button primary">
-          Volver
-        </button>
+        <h2>Autorización requerida</h2>
+        <p>Para escanear pedidos, necesitas identificarte como colaborador o administrador.</p>
+        
+        <div class="auth-form">
+          <div class="form-group">
+            <label for="auth-code">Código de acceso:</label>
+            <input 
+              id="auth-code" 
+              v-model="authCode" 
+              type="text" 
+              placeholder="Ingresa tu código de colaborador o administrador"
+              maxlength="6"
+            >
+          </div>
+          <button @click="verifyAccess" class="action-button primary" :disabled="!authCode.trim() || verifying">
+            {{ verifying ? 'Verificando...' : 'Verificar acceso' }}
+          </button>
+          <p v-if="authError" class="error-message">{{ authError }}</p>
+        </div>
+        
+        <div class="auth-footer">
+          <button @click="goBack" class="text-button">
+            Volver
+          </button>
+        </div>
       </div>
       
       <!-- Contenido principal solo disponible para usuarios autorizados -->
@@ -83,6 +103,9 @@ const manualCode = ref('')
 const returnPath = ref('')
 const isAuthorized = ref(false) 
 const actividadCode = ref('') // Guardar el código de actividad del colaborador
+const authCode = ref('')
+const authError = ref('')
+const verifying = ref(false)
 
 const supabase = useSupabaseClient()
 const router = useRouter()
@@ -145,6 +168,35 @@ const handlePedidoUpdated = (pedidoData) => {
     }, 2000) // Redirigir después de 2 segundos
   }
   // En cualquier otro caso, permanece en la pantalla de detalles
+}
+
+// Verificar acceso
+const verifyAccess = async () => {
+  verifying.value = true
+  authError.value = ''
+  
+  try {
+    const { data, error } = await supabase
+      .from('actividades')
+      .select('codigo_acceso')
+      .eq('codigo_acceso', authCode.value)
+      .single()
+      
+    if (error) {
+      authError.value = 'Error al verificar acceso'
+    }
+    
+    if (data) {
+      isAuthorized.value = true
+      actividadCode.value = authCode.value
+    } else {
+      authError.value = 'Código de acceso incorrecto'
+    }
+  } catch (err) {
+    authError.value = 'Error al verificar acceso'
+  } finally {
+    verifying.value = false
+  }
 }
 
 onMounted(async () => {
@@ -347,6 +399,51 @@ onMounted(async () => {
   margin-top: var(--spacing-large);
   box-shadow: var(--card-shadow);
   text-align: center;
+}
+
+.auth-form {
+  margin-top: var(--spacing-large);
+  padding: var(--spacing-medium);
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--card-shadow);
+}
+
+.auth-form .form-group {
+  margin-bottom: var(--spacing-medium);
+}
+
+.auth-form label {
+  display: block;
+  margin-bottom: var(--spacing-small);
+}
+
+.auth-form input {
+  padding: var(--spacing-small);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-small);
+  font-size: 1rem;
+  width: 100%;
+}
+
+.auth-footer {
+  margin-top: var(--spacing-large);
+  text-align: center;
+}
+
+.text-button {
+  background: transparent;
+  border: none;
+  color: var(--text-color-dark);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: var(--spacing-small);
+}
+
+.error-message {
+  color: var(--error-color);
+  font-size: 0.9rem;
+  margin-top: var(--spacing-small);
 }
 
 @media (max-width: 768px) {
