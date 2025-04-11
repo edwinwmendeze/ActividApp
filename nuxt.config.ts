@@ -26,12 +26,26 @@ export default defineNuxtConfig({
     redirect: false,
     // Agregar explícitamente las credenciales
     url: process.env.NUXT_SUPABASE_URL,
-    key: process.env.NUXT_SUPABASE_KEY
+    key: process.env.NUXT_SUPABASE_KEY,
+    // Configuraciones de seguridad recomendadas
+    cookieOptions: {
+      secure: process.env.NODE_ENV === 'production'
+    }
   },
   runtimeConfig: {
     public: {
       supabaseUrl: process.env.NUXT_SUPABASE_URL,
       supabaseKey: process.env.NUXT_SUPABASE_KEY
+    }
+  },
+  // Configuración específica para resolver problemas de prerender
+  nitro: {
+    preset: process.env.NITRO_PRESET || 'node-server',
+    prerender: {
+      // Desactivar autodetección (que puede causar errores)
+      crawlLinks: false,
+      // Solo prerender páginas estáticas específicas
+      routes: ['/404.html', '/200.html']
     }
   }
 })
