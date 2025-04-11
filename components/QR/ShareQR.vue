@@ -140,7 +140,7 @@
   // Obtener enlaces
   const accesoLink = computed<string>(() => {
     if (typeof window === 'undefined') return ''
-    return `${window.location.origin}/colaborador/admin/${props.collaborator.codigo_acceso}`
+    return `${window.location.origin}/colaborador/${props.collaborator.codigo_acceso}`
   })
   
   const ventasLink = computed<string>(() => {
@@ -254,7 +254,7 @@
     border-radius: var(--border-radius);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
     width: 100%;
-    max-width: 600px;
+    max-width: 550px;
     overflow: hidden;
     position: relative;
   }
@@ -349,8 +349,8 @@
   
   .access-info {
     display: flex;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
+    gap: 1rem;
+    margin-bottom: 1rem;
   }
   
   .qr-section, .code-section {
@@ -426,6 +426,15 @@
     word-break: break-all;
     font-weight: 500;
     color: var(--primary-color);
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+    background-color: #f0f0f0;
+    border-radius: var(--border-radius-small);
+    margin: 0.5rem 0;
+    padding: 0.75rem;
   }
   
   .text-button {
