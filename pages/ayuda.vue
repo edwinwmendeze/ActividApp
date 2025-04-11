@@ -115,23 +115,11 @@ const currentGuide = ref({})
 const faqs = [
   {
     question: '¿Cómo creo una nueva actividad?',
-    answer: '<p>Para crear una nueva actividad, sigue estos pasos:</p><ol><li>Inicia sesión en tu cuenta</li><li>En la página principal, haz clic en "Crear Actividad"</li><li>Completa el formulario con los detalles de tu actividad</li><li>Haz clic en "Guardar" para crear la actividad</li></ol>'
+    answer: '<p>Para crear una nueva actividad, sigue estos pasos:</p><ol><li>En la página principal, haz clic en el botón de "Nueva Actividad"</li><li>Completa el formulario con los detalles de tu actividad</li><li>Haz clic en "Crear" para generar tu actividad</li></ol>'
   },
   {
-    question: '¿Cómo puedo invitar colaboradores a mi actividad?',
-    answer: '<p>Para invitar colaboradores:</p><ol><li>Ingresa a la sección "Mis Actividades"</li><li>Selecciona la actividad a la que deseas invitar colaboradores</li><li>Haz clic en "Colaboradores" en el menú lateral</li><li>Usa la opción "Compartir QR" o "Copiar enlace" para enviar invitaciones</li></ol>'
-  },
-  {
-    question: '¿Cómo escaneo pedidos como colaborador?',
-    answer: '<p>Para escanear pedidos como colaborador:</p><ol><li>Accede a la sección "Escanear Pedido"</li><li>Ingresa tu código de colaborador cuando se te solicite</li><li>Apunta la cámara al código QR del pedido o ingresa el código manualmente</li><li>Actualiza el estado del pedido según sea necesario</li></ol>'
-  },
-  {
-    question: '¿Qué hago si no puedo acceder a mi cuenta?',
-    answer: '<p>Si tienes problemas para acceder a tu cuenta:</p><ol><li>Verifica que estás utilizando el correo y contraseña correctos</li><li>Utiliza la opción "Olvidé mi contraseña" para restablecerla</li><li>Comprueba tu conexión a internet</li><li>Borra la caché del navegador</li><li>Si el problema persiste, contacta a soporte técnico</li></ol>'
-  },
-  {
-    question: '¿Cómo puedo ver mis ventas y ganancias?',
-    answer: '<p>Para ver tus ventas y ganancias:</p><ol><li>Accede a "Mis Actividades" y selecciona la actividad deseada</li><li>En el panel de control, encontrarás un resumen de las ventas recientes</li><li>Para un análisis más detallado, ve a la sección "Reportes"</li><li>Puedes filtrar por fechas y exportar los datos si lo necesitas</li></ol>'
+    question: '¿Cómo puedo gestionar mis actividades?',
+    answer: '<p>Para gestionar tus actividades:</p><ol><li>Accede a la página principal donde se muestran tus actividades</li><li>Selecciona la actividad que deseas administrar</li><li>Utiliza el panel de control para ver estadísticas, modificar detalles o gestionar ventas</li></ol>'
   }
 ]
 
@@ -144,19 +132,19 @@ const guides = [
     content: `
       <div class="guide-full-content">
         <h4>Bienvenido a ActividApp</h4>
-        <p>Esta guía te ayudará a comenzar a utilizar nuestra plataforma de manera efectiva.</p>
+        <p>Esta guía rápida te ayudará a comenzar a utilizar nuestra plataforma para gestionar eventos y actividades.</p>
         
-        <h5>1. Crea tu cuenta</h5>
-        <p>Regístrate con tu correo electrónico y una contraseña segura. También puedes usar tu cuenta de Google o Facebook para un acceso más rápido.</p>
+        <h5>1. Crear tu actividad</h5>
+        <p>Desde la página principal, selecciona "Nueva Actividad" y completa la información básica como nombre, fecha y descripción.</p>
         
-        <h5>2. Crea tu primera actividad</h5>
-        <p>Una vez dentro, haz clic en "Crear Actividad" y completa la información básica como nombre, fecha, lugar y descripción.</p>
+        <h5>2. Configurar los detalles</h5>
+        <p>Añade precios, información adicional, y personaliza las opciones disponibles para tus clientes.</p>
         
-        <h5>3. Configura tus productos</h5>
-        <p>Agrega los productos o servicios que ofrecerás en tu actividad, incluyendo precios y descripciones detalladas.</p>
+        <h5>3. Personalizar la apariencia</h5>
+        <p>Sube imágenes atractivas y selecciona los colores que representan tu marca o evento.</p>
         
-        <h5>4. Invita colaboradores</h5>
-        <p>Si necesitas ayuda, puedes invitar a otras personas a colaborar en tu actividad compartiendo un código QR o un enlace.</p>
+        <h5>4. Comparte el enlace</h5>
+        <p>Una vez configurada, comparte el enlace único de tu actividad a través de redes sociales, email o mensajería.</p>
         
         <h5>5. ¡Listo para vender!</h5>
         <p>Tu actividad ya está lista para recibir pedidos. Comparte el enlace con tus clientes y comienza a recibir ventas.</p>
@@ -179,7 +167,7 @@ const guides = [
         <p>Cada pedido puede tener diferentes estados: Pendiente, En Preparación, Listo para Entrega y Entregado. Actualiza estos estados según avanza el proceso.</p>
         
         <h5>3. Notificaciones</h5>
-        <p>Configura notificaciones para recibir alertas cuando lleguen nuevos pedidos o cuando un colaborador actualice el estado de un pedido.</p>
+        <p>Configura notificaciones para recibir alertas instantáneas de nuevos pedidos o actualizaciones.</p>
         
         <h5>4. Reportes</h5>
         <p>Genera reportes detallados por día, semana o mes para analizar tu rendimiento y tomar decisiones informadas.</p>
@@ -196,21 +184,21 @@ const guides = [
     content: `
       <div class="guide-full-content">
         <h4>Gestión de Colaboradores</h4>
-        <p>Aprende a coordinar efectivamente con tu equipo en ActividApp.</p>
+        <p>ActividApp te permite trabajar en equipo para gestionar tus actividades de manera más eficiente.</p>
         
-        <h5>1. Invitación de Colaboradores</h5>
-        <p>Genera códigos QR o enlaces únicos para invitar a tus colaboradores a unirse a tu actividad.</p>
+        <h5>1. Añadir Colaboradores</h5>
+        <p>Desde tu panel de actividad, accede a la sección "Colaboradores" y utiliza la opción para crear un nuevo colaborador.</p>
         
-        <h5>2. Asignación de Roles</h5>
-        <p>Define los permisos de cada colaborador según su función: administrador, vendedor, preparador, etc.</p>
+        <h5>2. Compartir QR</h5>
+        <p>Utiliza la función "Compartir QR" para dar acceso rápido a tus colaboradores a la información de pedidos.</p>
         
-        <h5>3. Seguimiento de Actividad</h5>
-        <p>Monitorea las acciones realizadas por cada colaborador para mantener la transparencia en la operación.</p>
+        <h5>3. Asignación de Responsabilidades</h5>
+        <p>Define qué tareas puede realizar cada colaborador en tu actividad para mantener el control.</p>
         
-        <h5>4. Comunicación Interna</h5>
-        <p>Utiliza el sistema de mensajería interna para comunicarte con tu equipo sin salir de la plataforma.</p>
+        <h5>4. Monitoreo en Tiempo Real</h5>
+        <p>Supervisa las acciones de tus colaboradores y el estado de los pedidos que gestionan en tiempo real.</p>
         
-        <h5>5. Evaluación de Desempeño</h5>
+        <h5>5. Gestión del Equipo</h5>
         <p>Revisa estadísticas individuales para evaluar el rendimiento de cada colaborador y mejorar la productividad del equipo.</p>
       </div>
     `
@@ -222,22 +210,22 @@ const guides = [
     content: `
       <div class="guide-full-content">
         <h4>ActividApp en Dispositivos Móviles</h4>
-        <p>Optimiza tu experiencia cuando utilices la aplicación desde tu smartphone o tablet.</p>
+        <p>Nuestra aplicación está optimizada para dispositivos móviles, permitiendo gestionar tus actividades desde cualquier lugar.</p>
         
-        <h5>1. Instalación como App</h5>
-        <p>Agrega ActividApp a tu pantalla de inicio para acceder rápidamente sin abrir el navegador.</p>
+        <h5>1. Diseño Responsivo</h5>
+        <p>La interfaz se adapta a diferentes tamaños de pantalla para una experiencia óptima en cualquier dispositivo.</p>
         
         <h5>2. Escaneo de QR</h5>
-        <p>Utiliza la cámara de tu dispositivo para escanear códigos QR de pedidos o invitaciones de manera rápida.</p>
+        <p>Utiliza la cámara de tu dispositivo para escanear códigos QR de pedidos rápidamente.</p>
         
-        <h5>3. Notificaciones Push</h5>
-        <p>Activa las notificaciones en tu dispositivo para recibir alertas instantáneas de nuevos pedidos o actualizaciones.</p>
+        <h5>3. Notificaciones Móviles</h5>
+        <p>Recibe alertas sobre nuevos pedidos y actualizaciones directamente en tu dispositivo.</p>
         
-        <h5>4. Modo Offline</h5>
-        <p>Conoce las funcionalidades disponibles incluso cuando no tienes conexión a internet.</p>
+        <h5>4. Modo Fuera de Línea</h5>
+        <p>Accede a información básica incluso cuando no tienes conexión a internet, sincronizándose cuando vuelvas a estar en línea.</p>
         
         <h5>5. Optimización de Batería</h5>
-        <p>Consejos para reducir el consumo de batería mientras usas ActividApp durante eventos prolongados.</p>
+        <p>La aplicación está diseñada para minimizar el consumo de batería durante el uso prolongado en eventos.</p>
       </div>
     `
   }
