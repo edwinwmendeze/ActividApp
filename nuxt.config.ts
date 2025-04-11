@@ -42,10 +42,26 @@ export default defineNuxtConfig({
   nitro: {
     preset: process.env.NITRO_PRESET || 'node-server',
     prerender: {
-      // Desactivar autodetección (que puede causar errores)
-      crawlLinks: false,
-      // Solo prerender páginas estáticas específicas
-      routes: ['/404.html', '/200.html']
+      // Configuración para evitar prerender rutas dinámicas
+      ignore: [
+        '/',  // Ignorar explícitamente la ruta principal
+        '/admin/**',  // Ignorar todas las rutas de admin
+        '/colaborador/**',  // Ignorar todas las rutas de colaborador
+        '/actividad/**'  // Ignorar todas las rutas de actividad
+      ],
+      failOnError: false,  // No fallar si hay errores en prerender
+      crawlLinks: false,   // No rastrear links automáticamente
+      routes: [
+        '/404.html',
+        '/200.html'
+      ]
+    },
+    // Configuración de renderizado del lado del cliente para páginas que usan Supabase
+    routeRules: {
+      '/': { ssr: false },  // Desactivar SSR para la página principal
+      '/admin/**': { ssr: false },  // Desactivar SSR para rutas de admin
+      '/colaborador/**': { ssr: false },  // Desactivar SSR para rutas de colaborador
+      '/actividad/**': { ssr: false },  // Desactivar SSR para rutas de actividad
     }
   }
 })
