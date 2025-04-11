@@ -35,6 +35,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useSupabaseClient } from '#imports';
 
 // Props
 const props = defineProps({
@@ -64,11 +65,11 @@ const props = defineProps({
   }
 });
 
-// Variables reactivas
-const loading = ref(true);
-const error = ref(null);
+// Variables
+const supabase = useSupabaseClient();
+const loading = ref(false);
+const error = ref('');
 const productosVendidos = ref([]);
-let supabase = null;
 
 // Función para formatear moneda
 const formatCurrency = (value) => {
@@ -81,8 +82,6 @@ const formatCurrency = (value) => {
 
 // Cargar datos
 async function cargarDatos() {
-  if (!supabase) return;
-  
   loading.value = true;
   error.value = '';
   
@@ -199,14 +198,9 @@ async function cargarDatos() {
   }
 }
 
-onMounted(async () => {
-  // Solo importamos el cliente Supabase en el lado del cliente
-  if (process.client) {
-    const { useSupabaseClient } = await import('#imports');
-    supabase = useSupabaseClient();
-    // Cargar datos después de obtener el cliente
-    await cargarDatos();
-  }
+// Inicializar
+onMounted(() => {
+  cargarDatos();
 });
 </script>
 

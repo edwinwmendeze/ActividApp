@@ -33,19 +33,5 @@ export default defineNuxtConfig({
       supabaseUrl: process.env.NUXT_SUPABASE_URL,
       supabaseKey: process.env.NUXT_SUPABASE_KEY
     }
-  },
-
-  // Desactivar SSR para crear una SPA pura
-  ssr: false,
-  
-  // No es necesario configurar app.baseURL - será configurado automáticamente 
-  // por el preset github_pages usando la variable de entorno NUXT_APP_BASE_URL
-  
-  // Configuración de nitro para controlar el prerenderizado
-  nitro: {
-    prerender: {
-      crawlLinks: false,
-      routes: ['/']
-    }
   }
 })

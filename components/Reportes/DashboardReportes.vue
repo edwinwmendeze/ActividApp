@@ -173,7 +173,7 @@
 
 <script setup>
 import { ref, onMounted, computed, reactive } from 'vue';
-import { useRouter } from '#imports';
+import { useSupabaseClient, useRouter } from '#imports';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
 import ProductosMasVendidos from '~/components/Reportes/ProductosMasVendidos.vue';
@@ -186,17 +186,7 @@ const props = defineProps({
 });
 
 const router = useRouter();
-let supabase = null;
-onMounted(async () => {
-  // Solo importamos el cliente Supabase en el lado del cliente
-  if (process.client) {
-    const { useSupabaseClient } = await import('#imports');
-    supabase = useSupabaseClient();
-    // Cargar datos después de obtener el cliente
-    await cargarDatos();
-  }
-});
-
+const supabase = useSupabaseClient();
 const loading = ref(false);
 const error = ref(null);
 
@@ -410,6 +400,10 @@ function verDetallesPedido(pedidoId) {
 function actualizarDatos() {
   cargarDatos();
 }
+
+onMounted(() => {
+  cargarDatos();
+});
 </script>
 
 <style scoped>
