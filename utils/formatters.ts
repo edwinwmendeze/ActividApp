@@ -44,3 +44,14 @@ export function formatDate(dateString: string): string {
     
     return emojis[tipo] || '🍽️';
   }
+  
+  export function formatearTipo(tipo: string): string {
+    const tipos: Record<string, string> = {
+      'plato': 'Plato principal',
+      'bebida': 'Bebida',
+      'postre': 'Postre',
+      'otro': 'Otro'
+    };
+    
+    return tipos[tipo] || tipo;
+  }

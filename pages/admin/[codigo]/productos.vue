@@ -260,7 +260,7 @@
   <script setup>
   import { ref, reactive, onMounted, computed } from 'vue';
 
-  import { formatearTipo, obtenerEmoji } from '@/utils/formatters';
+  import { formatearTipo, obtenerEmoji } from 'utils/formatters';
   
   const supabase = useSupabaseClient();
   const emit = defineEmits(['refresh-stats']); // Para notificar al layout si cambian las stats
