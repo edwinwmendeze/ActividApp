@@ -33,3 +33,25 @@ export function formatDate(dateString: string): string {
     
     return estados[estado] || estado;
   }
+
+export function formatearTipo(tipo: string): string {
+  const tipos: Record<string, string> = {
+    'plato': 'Plato',
+    'bebida': 'Bebida',
+    'postre': 'Postre',
+    'otro': 'Otro'
+  };
+  
+  return tipos[tipo] || tipo;
+}
+
+export function obtenerEmoji(tipo: string): string {
+  const emojis: Record<string, string> = {
+    'plato': '🍽️',
+    'bebida': '🥤',
+    'postre': '🍰',
+    'otro': '📦'
+  };
+  
+  return emojis[tipo] || '❓';
+}
