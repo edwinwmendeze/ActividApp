@@ -82,13 +82,21 @@
               loading="lazy"
             />
             <div v-else class="producto-imagen-placeholder">
-              {{ obtenerEmoji(producto.tipo) }}
+              {{ producto.tipo === 'plato' ? '🍴' : 
+                 producto.tipo === 'bebida' ? '🥤' : 
+                 producto.tipo === 'postre' ? '🍰' : 
+                 producto.tipo === 'otro' ? '🍔' : '🤔' }}
             </div>
           </div>
   
           <div class="producto-info">
             <h3 class="producto-nombre">{{ producto.nombre }}</h3>
-            <div class="producto-tipo">{{ formatearTipo(producto.tipo) }}</div>
+            <div class="producto-tipo">{{ 
+              producto.tipo === 'plato' ? 'Plato principal' : 
+              producto.tipo === 'bebida' ? 'Bebida' : 
+              producto.tipo === 'postre' ? 'Postre' : 
+              producto.tipo === 'otro' ? 'Otro' : producto.tipo
+            }}</div>
             <p class="producto-descripcion">{{ producto.descripcion || 'Sin descripción' }}</p>
             <div class="producto-precio">S/ {{ producto.precio?.toFixed(2) ?? '0.00' }}</div>
           </div>
@@ -260,8 +268,6 @@
   <script setup>
   import { ref, reactive, onMounted, computed } from 'vue';
 
-  import { formatearTipo, obtenerEmoji } from 'utils/formatters';
-  
   const supabase = useSupabaseClient();
   const emit = defineEmits(['refresh-stats']); // Para notificar al layout si cambian las stats
   
