@@ -34,31 +34,18 @@ export default defineNuxtConfig({
       supabaseKey: process.env.NUXT_SUPABASE_KEY
     }
   },
-  
-  // Configuración para GitHub Pages
-  app: {
-    // La URL base para el proyecto en GitHub Pages
-    baseURL: '/ActividApp/',
-    // Prefijo para los archivos buildeados
-    buildAssetsDir: '/_nuxt/'
-  },
 
   // Desactivar SSR para crear una SPA pura
   ssr: false,
   
-  // Configuración para manejo de enlaces en GitHub Pages
-  experimental: {
-    payloadExtraction: false
-  },
+  // No es necesario configurar app.baseURL - será configurado automáticamente 
+  // por el preset github_pages usando la variable de entorno NUXT_APP_BASE_URL
   
   // Configuración de nitro para controlar el prerenderizado
   nitro: {
     prerender: {
       crawlLinks: false,
       routes: ['/']
-    },
-    routeRules: {
-      '/**': { ssr: false }
     }
   }
 })

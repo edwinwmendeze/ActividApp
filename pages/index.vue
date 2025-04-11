@@ -10,8 +10,8 @@
             Plataforma integral para gestionar ventas, pedidos y colaboradores en tus actividades comunitarias.
           </p>
           <div class="hero-buttons">
-            <NuxtLink to="/crear-actividad" class="cta-button primary">Iniciar nueva actividad</NuxtLink>
-            <NuxtLink to="/supabase-test" class="cta-button secondary">Verificar conexión</NuxtLink>
+            <NuxtLink to="/ActividApp/crear-actividad" class="cta-button primary">Iniciar nueva actividad</NuxtLink>
+            <NuxtLink to="/ActividApp/supabase-test" class="cta-button secondary">Verificar conexión</NuxtLink>
           </div>
         </div>
         <div class="hero-image">
@@ -58,19 +58,19 @@
           <div class="feature-icon">🚀</div>
           <h2>Crear Actividad</h2>
           <p>Configura una nueva actividad, genera códigos únicos y personaliza las opciones de venta.</p>
-          <NuxtLink to="/crear-actividad" class="cta-button">Crear Nueva Actividad</NuxtLink>
+          <NuxtLink to="/ActividApp/crear-actividad" class="cta-button">Crear Nueva Actividad</NuxtLink>
         </div>
         <div class="feature-item">
           <div class="feature-icon">🔑</div>
           <h2>Acceder con Código</h2>
           <p>Ingresa con tu código de 6 dígitos o escanea el QR para administrar tu actividad existente.</p>
-          <NuxtLink to="/acceso-codigo" class="cta-button">Acceder con Código</NuxtLink>
+          <NuxtLink to="/ActividApp/acceso-codigo" class="cta-button">Acceder con Código</NuxtLink>
         </div>
         <div class="feature-item">
           <div class="feature-icon">📊</div>
           <h2>Gestión de Pedidos</h2>
           <p>Sistema completo para administrar pedidos, controlar pagos y hacer seguimiento a las entregas.</p>
-          <NuxtLink to="/panel-colaboradores" class="cta-button">Acceder al Panel</NuxtLink>
+          <NuxtLink to="/ActividApp/panel-colaboradores" class="cta-button">Acceder al Panel</NuxtLink>
         </div>
       </div>
   
